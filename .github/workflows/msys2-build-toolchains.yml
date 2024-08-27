@@ -1,0 +1,70 @@
+---
+name: Build toolchains
+
+on:
+  push:
+    tags:
+      - "v*-rev*"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: win64-release
+            os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: 'crosstool-ng/crosstool-ng'
+        ref: 'master'
+        fetch-depth: 0
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: matrix.os == 'windows-latest'
+    - name: Configure
+      run: cmake --preset ${{ matrix.preset }} -DSLANG_CI_BUILD=ON
+    - name: Build
+      run: cmake --build build/${{ matrix.preset }} -j8
+    - name: Run tests
+      run: ctest --test-dir build/${{ matrix.preset }} --output-on-failure --no-tests=error -j8
+    - name: Install
+      run: cmake --install build/${{ matrix.preset }} --strip --prefix install/${{ matrix.preset }}
+
+    - name: Zip artifact for deployment
+      run: |
+        if ($env:RUNNER_OS -eq "Windows") {
+          7z a crosstool-ng-${{ matrix.preset }}.zip install/${{ matrix.preset }}
+        } else {
+          zip -r crosstool-ng-${{ matrix.preset }}.zip install/${{ matrix.preset }}
+        }
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'archives'
+        path: crosstool-ng-${{ matrix.preset }}.zip
+
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: 'archives'
+        path: ./
+    - name: Display structure of downloaded files
+      run: ls -R
+
+    - name: Upload to Release
+      id: upload_to_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "*.zip"
