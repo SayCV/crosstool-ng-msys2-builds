@@ -20,8 +20,10 @@ jobs:
     - name: create case sensitive workspace volume for windows
       if: ${{ runner.os == 'Windows' }}
       run: |
+        cd ../..
         mkdir crosstool-ng
         fsutil file SetCaseSensitiveInfo crosstool-ng enable
+        cd crosstool-ng
 
     - uses: actions/checkout@v4
       with:
