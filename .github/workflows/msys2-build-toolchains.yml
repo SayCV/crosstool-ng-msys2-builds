@@ -17,21 +17,26 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+    - name: create case sensitive workspace volume for windows
+      if: ${{ runner.os == 'windows-latest' }}
+      run: |
+        mkdir crosstool-ng
+        fsutil file SetCaseSensitiveInfo crosstool-ng enable
+
     - uses: actions/checkout@v4
       with:
         repository: 'crosstool-ng/crosstool-ng'
         ref: 'master'
         fetch-depth: 0
-    - uses: ilammy/msvc-dev-cmd@v1
-      if: matrix.os == 'windows-latest'
-    - name: Configure
-      run: cmake --preset ${{ matrix.preset }} -DSLANG_CI_BUILD=ON
-    - name: Build
-      run: cmake --build build/${{ matrix.preset }} -j8
-    - name: Run tests
-      run: ctest --test-dir build/${{ matrix.preset }} --output-on-failure --no-tests=error -j8
-    - name: Install
-      run: cmake --install build/${{ matrix.preset }} --strip --prefix install/${{ matrix.preset }}
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+
+    - name: prereq msys2
+      if: ${{ runner.os == 'windows-latest' }}
+      run: |
+        ls
 
     - name: Zip artifact for deployment
       run: |
