@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: create case sensitive workspace volume for windows
-      if: ${{ runner.os == 'windows-latest' }}
+      if: ${{ runner.os == 'Windows' }}
       run: |
         mkdir crosstool-ng
         fsutil file SetCaseSensitiveInfo crosstool-ng enable
@@ -34,7 +34,7 @@ jobs:
         update: true
 
     - name: prereq msys2
-      if: ${{ runner.os == 'windows-latest' }}
+      if: ${{ runner.os == 'Windows' }}
       run: |
         ls
 
