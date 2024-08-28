@@ -75,11 +75,20 @@
         matrix:
           host: ["windows-2022"]
       steps:
+        - name: "prereq Windows"
+          if: ${{ runner.os == 'Windows' }}
+          uses: msys2/setup-msys2@v2
+          with:
+            update: true
+            install: >-
+              base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
+              autoconf-archive gettext-devel ncurses-devel
         - name: "download ct-ng"
           uses: actions/download-artifact@v4
           with:
             name: crosstool.${{ matrix.host }}
         - name: "extract ct-ng"
+          shell: msys2 {0}
           run: |
             tar -xf ct-ng.tar
         - name: cache tarballs
@@ -92,6 +101,7 @@
               src.tar-${{ hashFiles('.local/share/crosstool-ng/packages') }}-
               src.tar-
         - name: extract tarballs
+          shell: msys2 {0}
           run: |
             tar -xvf src.tar || true
             touch stamp
@@ -101,6 +111,7 @@
             sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin texinfo
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
         - name: "ct-ng source"
+          shell: msys2 {0}
           run: |
             mkdir -p src
             for sample in aarch64-unknown-linux-gnu arm-picolibc-eabi \
