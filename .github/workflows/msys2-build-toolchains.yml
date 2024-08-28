@@ -63,6 +63,7 @@ jobs:
           install: >-
             base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
             autoconf-archive gettext-devel ncurses-devel
+          path-type: inherit
       - name: download ct-ng
         uses: actions/download-artifact@v4
         with:
@@ -97,7 +98,6 @@ jobs:
         shell: msys2 {0}
         run: |
           echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-          export PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
@@ -111,7 +111,6 @@ jobs:
           tar -C ${{ github.workspace }}/x86_64-w64-mingw32 \
               -xf x86_64-w64-mingw32.${{ matrix.host }}.tar
           echo "${{ github.workspace }}/x86_64-w64-mingw32/bin" >> "$GITHUB_PATH"
-          export PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
       - name: build ${{ matrix.sample }} for ${{ matrix.host }}
         shell: msys2 {0}
         run: |

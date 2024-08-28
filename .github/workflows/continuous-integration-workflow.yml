@@ -38,7 +38,7 @@
             install: >-
               base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
               autoconf-archive gettext-devel ncurses-devel
-
+            path-type: inherit
         - name: "build ct-ng"
           shell: msys2 {0}
           run: |
@@ -85,6 +85,7 @@
             install: >-
               base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
               autoconf-archive gettext-devel ncurses-devel
+            path-type: inherit
         - name: "download ct-ng"
           uses: actions/download-artifact@v4
           with:
@@ -116,13 +117,11 @@
           if: ${{ runner.os == 'Windows' }}
           shell: msys2 {0}
           run: |
-            echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-            export PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
+            echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH
         - name: "ct-ng source"
           shell: msys2 {0}
           run: |
-            echo "GITHUB_PATH=$GITHUB_PATH"
-            export PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
+            echo "GITHUB_PATH=$GITHUB_PATH
             which ct-ng || true
             mkdir -p src
             for sample in aarch64-unknown-linux-gnu arm-picolibc-eabi \
