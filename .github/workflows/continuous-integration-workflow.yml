@@ -12,7 +12,10 @@
         matrix:
           host: ["windows-2022"]
       steps:
-        - run: git config --global core.autocrlf input
+        - run: |
+            echo "MSYS_NO_PATHCONV=" >> $GITHUB_ENV
+            echo "MSYS=winsymlinks:native" >> $GITHUB_ENV
+            git config --global core.autocrlf input
         - name: create case sensitive workspace volume for windows
           if: ${{ runner.os == 'Windows' }}
           run: |
@@ -75,7 +78,10 @@
         matrix:
           host: ["windows-2022"]
       steps:
-        - run: git config --global core.autocrlf input
+        - run: |
+            echo "MSYS_NO_PATHCONV=" >> $GITHUB_ENV
+            echo "MSYS=winsymlinks:native" >> $GITHUB_ENV
+            git config --global core.autocrlf input
         - name: create case sensitive workspace volume for windows
           if: ${{ runner.os == 'Windows' }}
           run: |
