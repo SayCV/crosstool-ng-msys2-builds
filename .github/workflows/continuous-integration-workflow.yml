@@ -36,7 +36,7 @@
           with:
             update: true
             install: >-
-              bison flex gperf help2man libtool-bin meson ninja-build texinfo
+              bison flex gperf help2man libtool meson ninja texinfo
 
         - name: "build ct-ng"
           shell: msys2 {0}
