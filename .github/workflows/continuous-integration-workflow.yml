@@ -117,7 +117,7 @@
           shell: msys2 {0}
           run: |
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-            set PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
+            export PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
         - name: "ct-ng source"
           shell: msys2 {0}
           run: |
