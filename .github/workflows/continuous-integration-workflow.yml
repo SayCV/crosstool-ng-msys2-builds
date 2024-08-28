@@ -35,12 +35,13 @@
           with:
             update: true
             install: >-
-              base-devel msys2-runtime-devel autotools gcc bison flex gperf help2man libtool meson ninja texinfo
+              base-devel msys2-runtime-devel autotools gcc bison flex gperf help2man libtool meson ninja texinfo patch unzip
 
         - name: "build ct-ng"
           shell: msys2 {0}
           run: |
             uname -a
+            ls
             if [ "$RUNNER_OS" == "macOS" ]; then
               PATH="$PATH:$(brew --prefix)/opt/binutils/bin"
               export PATH
