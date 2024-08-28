@@ -76,7 +76,7 @@ jobs:
         run: |
           tar -xvf ct-ng.tar
           cp -vf packages/zstd/1.5.6/*.patch .local/share/crosstool-ng/packages/zstd/1.5.6/.
-          cp -vf packages/gmp/.sh            .local/share/crosstool-ng/scripts/build/companion_libs/.
+          cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
       - name: download tarballs
         uses: actions/cache/restore@v4
         with:
