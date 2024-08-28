@@ -92,8 +92,10 @@
         - name: "extract ct-ng"
           shell: msys2 {0}
           run: |
-            tar -xf ct-ng.tar
+            pwd
             ls
+            tar -xvf ct-ng.tar
+            ls -R
         - name: cache tarballs
           id: cache
           uses: actions/cache@v4
@@ -113,6 +115,11 @@
           if: ${{ runner.os == 'Linux' }}
           run: |
             sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin texinfo
+            echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
+        - name: "prereq Msys"
+          if: ${{ runner.os == 'Windows' }}
+          shell: msys2 {0}
+          run: |
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
         - name: "ct-ng source"
           shell: msys2 {0}

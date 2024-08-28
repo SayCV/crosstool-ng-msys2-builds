@@ -70,7 +70,7 @@ jobs:
       - name: extract ct-ng
         shell: msys2 {0}
         run: |
-          tar -xf ct-ng.tar
+          tar -xvf ct-ng.tar
       - name: download tarballs
         uses: actions/cache/restore@v4
         with:
@@ -92,6 +92,11 @@ jobs:
           brew install autoconf automake bash binutils gawk gnu-sed \
                gnu-tar help2man make ncurses pkg-config texinfo libtool
           echo "${{ github.workspace }}/.local/bin" >> "$GITHUB_PATH"
+      - name: "prereq Msys"
+        if: ${{ runner.os == 'Windows' }}
+        shell: msys2 {0}
+        run: |
+          echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
