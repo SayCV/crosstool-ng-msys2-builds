@@ -97,6 +97,7 @@ jobs:
         shell: msys2 {0}
         run: |
           echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
+          set PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
@@ -110,6 +111,7 @@ jobs:
           tar -C ${{ github.workspace }}/x86_64-w64-mingw32 \
               -xf x86_64-w64-mingw32.${{ matrix.host }}.tar
           echo "${{ github.workspace }}/x86_64-w64-mingw32/bin" >> "$GITHUB_PATH"
+          set PATH=$PATH:$GITHUB_WORKSPACE/.local/bin
       - name: build ${{ matrix.sample }} for ${{ matrix.host }}
         shell: msys2 {0}
         run: |
