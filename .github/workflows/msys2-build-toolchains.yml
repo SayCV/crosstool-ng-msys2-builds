@@ -16,80 +16,123 @@ on:
 
 jobs:
   build:
+    runs-on: ${{ matrix.host }}
     strategy:
-      fail-fast: false
       matrix:
-        include:
-          - preset: win64-release
-            os: windows-latest
+        host: ["windows-2022"]
+        sample: ${{ fromJSON(inputs.samples) }}
+        exclude:
+          # Exclude both glibc & uClibc ARC Linux toolchains as
+          # there's no known use of ARC Linux toolchains on Mac,
+          # and anyway glibc fails to build for ARC700,
+          # see https://github.com/crosstool-ng/crosstool-ng/pull/1456#issuecomment-779150246
+          - {host: "macos-12", sample: "arc-multilib-linux-gnu"}
+          - {host: "macos-12", sample: "arc-multilib-linux-uclibc"}
 
-    runs-on: ${{ matrix.os }}
+          # Exclude mips*-*-linux-gnu because of <byteswap.h> usage in
+          # elf-entry.c for linux kernel headers.  <byteswap.h> is a GNU
+          # extension and doesn't exist on MacOS X
+          - {host: "macos-12", sample: "mips-unknown-linux-gnu"}
+          - {host: "macos-12", sample: "mips64-unknown-linux-gnu"}
+
+          # Exclude x86_64-w64-mingw32,x86_64-pc-linux-gnu because it crashes on m4 build with
+          # a Segmentation fault
+          - {host: "macos-12", sample: "x86_64-w64-mingw32,x86_64-pc-linux-gnu"}
     steps:
-    - run: git config --global core.autocrlf input
-    - name: create case sensitive workspace volume for windows
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        cd ..
-        fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
-        cd crosstool-ng-msys2-builds
-
-    - uses: actions/checkout@v4
-      with:
-        repository: 'crosstool-ng/crosstool-ng'
-        ref: 'master'
-        fetch-depth: 0
-
-    - uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        install: >-
-          bison flex gperf help2man libtool-bin meson ninja-build texinfo
-
-    - name: build for ${{ matrix.preset }}
-      shell: msys2 {0}
-      run: |
-        uname -a
-        mkdir -p src
-        ct-ng ${{ matrix.sample }}
-        sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config
-        sed -i -e '/CT_LOCAL_TARBALLS_DIR/s/HOME/CT_TOP_DIR/' .config
-        sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config
-        sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
-        test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
-        ct-ng build
-
-    - name: Zip artifact for deployment
-      run: |
-        if ($env:RUNNER_OS -eq "Windows") {
-          7z a crosstool-ng-${{ matrix.preset }}.zip install/${{ matrix.preset }}
-        } else {
-          zip -r crosstool-ng-${{ matrix.preset }}.zip install/${{ matrix.preset }}
-        }
-
-    - name: Upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: 'archives'
-        path: crosstool-ng-${{ matrix.preset }}.zip
-
-
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: write
-
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: 'archives'
-        path: ./
-    - name: Display structure of downloaded files
-      run: ls -R
-
-    - name: Upload to Release
-      id: upload_to_release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: "*.zip"
+      - run: git config --global core.autocrlf input
+      - name: create case sensitive workspace volume for windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          cd ..
+          fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
+          cd crosstool-ng-msys2-builds
+      - name: create case sensitive workspace volume for macOS
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          cd ..
+          rmdir crosstool-ng
+          hdiutil create "${HOME}/Workspace.sparseimage" -volname crosstool-ng -type SPARSE -size 20g -fs HFSX
+          hdiutil mount "${HOME}/Workspace.sparseimage" -mountroot /Users/runner/work/crosstool-ng
+          cd crosstool-ng
+      - name: "prereq Windows"
+        if: ${{ runner.os == 'Windows' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
+            autoconf-archive gettext-devel ncurses-devel
+      - name: download ct-ng
+        uses: actions/download-artifact@v4
+        with:
+          name: crosstool.${{ matrix.host }}
+      - name: extract ct-ng
+        shell: msys2 {0}
+        run: |
+          tar -xf ct-ng.tar
+      - name: download tarballs
+        uses: actions/cache/restore@v4
+        with:
+          path: src.tar
+          key: src.tar-${{ hashFiles('.local/share/crosstool-ng/packages') }}-${{ hashFiles('.local/share/crosstool-ng/samples') }}
+      - name: extract tarballs
+        shell: msys2 {0}
+        continue-on-error: true
+        run: |
+          tar -xvf src.tar
+      - name: prereq Linux
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin meson ninja-build texinfo
+          echo "${{ github.workspace }}/.local/bin" >> "$GITHUB_PATH"
+      - name: prereq macOS
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          brew install autoconf automake bash binutils gawk gnu-sed \
+               gnu-tar help2man make ncurses pkg-config texinfo libtool
+          echo "${{ github.workspace }}/.local/bin" >> "$GITHUB_PATH"
+      - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
+        if: ${{ inputs.canadian-cross }}
+        uses: actions/download-artifact@v4
+        with:
+          name: x86_64-w64-mingw32.${{ matrix.host }}.tar
+      - name: install x86_64-w64-mingw32.${{ matrix.host }} toolchain
+        shell: msys2 {0}
+        if: ${{ inputs.canadian-cross }}
+        run: |
+          mkdir -p ${{ github.workspace }}/x86_64-w64-mingw32
+          tar -C ${{ github.workspace }}/x86_64-w64-mingw32 \
+              -xf x86_64-w64-mingw32.${{ matrix.host }}.tar
+          echo "${{ github.workspace }}/x86_64-w64-mingw32/bin" >> "$GITHUB_PATH"
+      - name: build ${{ matrix.sample }} for ${{ matrix.host }}
+        shell: msys2 {0}
+        run: |
+          mkdir -p src
+          ct-ng ${{ matrix.sample }}
+          sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config
+          sed -i -e '/CT_LOCAL_TARBALLS_DIR/s/HOME/CT_TOP_DIR/' .config
+          sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config
+          sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
+          test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
+          ct-ng build
+      - name: create ${{ matrix.sample }}.${{ matrix.host }} tarball
+        shell: msys2 {0}
+        if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
+        run: |
+          tar -C ${{ github.workspace }}/x-tools/${{ matrix.sample }} \
+              -cf ${{ matrix.sample }}.${{ matrix.host }}.tar .
+      - name: upload ${{ matrix.sample }}.${{ matrix.host }} tarball
+        if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.sample }}.${{ matrix.host }}.tar
+          path: |
+            ${{ matrix.sample }}.${{ matrix.host }}.tar
+      - name: upload log
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.sample }}.${{ matrix.host }}.log
+          path: |
+            build.log
+            .config
+        if: ${{ always() }}
