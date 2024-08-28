@@ -43,7 +43,6 @@
           shell: msys2 {0}
           run: |
             uname -a
-            ls
             if [ "$RUNNER_OS" == "macOS" ]; then
               PATH="$PATH:$(brew --prefix)/opt/binutils/bin"
               export PATH
@@ -123,7 +122,7 @@
         - name: "prereq Msys"
           if: ${{ runner.os == 'Windows' }}
           shell: msys2 {0}
-          run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH
+          run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
         - name: "ct-ng source"
           shell: msys2 {0}
           run: |
