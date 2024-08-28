@@ -92,10 +92,7 @@
         - name: "extract ct-ng"
           shell: msys2 {0}
           run: |
-            pwd
-            ls
             tar -xvf ct-ng.tar
-            ls -R
         - name: cache tarballs
           id: cache
           uses: actions/cache@v4
@@ -108,7 +105,6 @@
         - name: extract tarballs
           shell: msys2 {0}
           run: |
-            ls -R
             tar -xvf src.tar || true
             touch stamp
         - name: "prereq Linux"
@@ -124,6 +120,7 @@
         - name: "ct-ng source"
           shell: msys2 {0}
           run: |
+            which ct-ng
             mkdir -p src
             for sample in aarch64-unknown-linux-gnu arm-picolibc-eabi \
                   arm-unknown-linux-musleabi armv6-nommu-linux-uclibcgnueabi \
