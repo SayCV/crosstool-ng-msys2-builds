@@ -18,7 +18,6 @@
           if: ${{ runner.os == 'Windows' }}
           run: |
             cd ..
-            rmdir crosstool-ng-msys2-builds
             fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
             cd crosstool-ng-msys2-builds
         - name: "clone"
