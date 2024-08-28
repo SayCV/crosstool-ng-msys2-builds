@@ -35,7 +35,8 @@
           with:
             update: true
             install: >-
-              base-devel msys2-runtime-devel autotools gcc bison flex gperf help2man libtool meson ninja texinfo patch unzip
+              base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
+              autoconf-archive gettext-devel ncurses-devel
 
         - name: "build ct-ng"
           shell: msys2 {0}
