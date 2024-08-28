@@ -39,10 +39,7 @@ jobs:
           # a Segmentation fault
           - {host: "macos-12", sample: "x86_64-w64-mingw32,x86_64-pc-linux-gnu"}
     steps:
-      - run: |
-          echo "MSYS_NO_PATHCONV=" >> $GITHUB_ENV
-          echo "MSYS=winsymlinks:native" >> $GITHUB_ENV
-          git config --global core.autocrlf input
+      - run: git config --global core.autocrlf input
       - name: create case sensitive workspace volume for windows
         if: ${{ runner.os == 'Windows' }}
         run: |
@@ -125,6 +122,9 @@ jobs:
           sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
           test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
           ct-ng build
+        env:
+          MSYS_NO_PATHCONV:
+          MSYS: winsymlinks:native
       - name: create ${{ matrix.sample }}.${{ matrix.host }} tarball
         shell: msys2 {0}
         if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
