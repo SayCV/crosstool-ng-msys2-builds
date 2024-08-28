@@ -3,8 +3,7 @@
 
   on:
     push:
-      tags:
-        - "v*-rev*"
+    pull_request:
 
   jobs:
     crosstool:
