@@ -33,6 +33,7 @@
           if: ${{ runner.os == 'Windows' }}
           uses: msys2/setup-msys2@v2
           with:
+            msystem: MSYS
             update: true
             install: >-
               base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
@@ -79,6 +80,7 @@
           if: ${{ runner.os == 'Windows' }}
           uses: msys2/setup-msys2@v2
           with:
+            msystem: MSYS
             update: true
             install: >-
               base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
@@ -91,6 +93,7 @@
           shell: msys2 {0}
           run: |
             tar -xf ct-ng.tar
+            ls
         - name: cache tarballs
           id: cache
           uses: actions/cache@v4
@@ -103,6 +106,7 @@
         - name: extract tarballs
           shell: msys2 {0}
           run: |
+            ls -R
             tar -xvf src.tar || true
             touch stamp
         - name: "prereq Linux"

@@ -58,6 +58,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         uses: msys2/setup-msys2@v2
         with:
+          msystem: MSYS
           update: true
           install: >-
             base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
