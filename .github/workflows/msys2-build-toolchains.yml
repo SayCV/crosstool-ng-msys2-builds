@@ -2,9 +2,17 @@
 name: Build toolchains
 
 on:
-  push:
-    tags:
-      - "v*-rev*"
+  workflow_call:
+    inputs:
+      samples:
+        description: Stringified JSON list of samples
+        required: true
+        type: string
+      canadian-cross:
+        description: Build Canadian Cross toolchain(x86_64-w64-mingw32)
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   build:
@@ -17,13 +25,14 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+    - run: git config --global core.autocrlf input
     - name: create case sensitive workspace volume for windows
       if: ${{ runner.os == 'Windows' }}
       run: |
-        cd ../..
-        mkdir crosstool-ng
-        fsutil file SetCaseSensitiveInfo crosstool-ng enable
-        cd crosstool-ng
+        cd ..
+        rmdir crosstool-ng-msys2-builds
+        fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
+        cd crosstool-ng-msys2-builds
 
     - uses: actions/checkout@v4
       with:
@@ -34,11 +43,21 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         update: true
+        install: >-
+          bison flex gperf help2man libtool-bin meson ninja-build texinfo
 
-    - name: prereq msys2
-      if: ${{ runner.os == 'Windows' }}
+    - name: build for ${{ matrix.preset }}
+      shell: msys2 {0}
       run: |
-        ls
+        uname -a
+        mkdir -p src
+        ct-ng ${{ matrix.sample }}
+        sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config
+        sed -i -e '/CT_LOCAL_TARBALLS_DIR/s/HOME/CT_TOP_DIR/' .config
+        sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config
+        sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
+        test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
+        ct-ng build
 
     - name: Zip artifact for deployment
       run: |

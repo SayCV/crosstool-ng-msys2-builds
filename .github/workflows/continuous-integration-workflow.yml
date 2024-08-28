@@ -1,0 +1,137 @@
+---
+  name: CI
+
+  on:
+    push:
+      tags:
+        - "v*-rev*"
+
+  jobs:
+    crosstool:
+      runs-on: ${{ matrix.host }}
+      strategy:
+        matrix:
+          host: ["windows-2022"]
+      steps:
+        - run: git config --global core.autocrlf input
+        - name: create case sensitive workspace volume for windows
+          if: ${{ runner.os == 'Windows' }}
+          run: |
+            cd ..
+            rmdir crosstool-ng-msys2-builds
+            fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
+            cd crosstool-ng-msys2-builds
+        - name: "clone"
+          uses: actions/checkout@v4
+          with:
+            repository: 'crosstool-ng/crosstool-ng'
+            ref: 'master'
+            fetch-depth: 0
+        - name: "prereq Linux"
+          if: ${{ runner.os == 'Linux' }}
+          run: |
+            sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin meson ninja-build texinfo
+        - name: "prereq Windows"
+          if: ${{ runner.os == 'Windows' }}
+          uses: msys2/setup-msys2@v2
+          with:
+            update: true
+            install: >-
+              bison flex gperf help2man libtool-bin meson ninja-build texinfo
+
+        - name: "build ct-ng"
+          shell: msys2 {0}
+          run: |
+            uname -a
+            if [ "$RUNNER_OS" == "macOS" ]; then
+              PATH="$PATH:$(brew --prefix)/opt/binutils/bin"
+              export PATH
+              CPPFLAGS="-I$(brew --prefix)/opt/ncurses/include -I$(brew --prefix)/opt/gettext/include"
+              export CPPFLAGS
+              LDFLAGS="-L$(brew --prefix)/opt/ncurses/lib -L$(brew --prefix)/opt/gettext/lib"
+              export LDFLAGS
+            fi
+            ./bootstrap
+            ./configure --prefix="$PWD/.local/"
+            make
+            make install
+            tar -cf ct-ng.tar .local/
+        - name: "upload ct-ng"
+          uses: actions/upload-artifact@v4
+          with:
+            name: crosstool.${{ matrix.host }}
+            path: ct-ng.tar
+        - name: "upload config.log"
+          uses: actions/upload-artifact@v4
+          with:
+            name: config.log.${{ matrix.host }}
+            path: config.log
+          if: ${{ always() }}
+
+    tarballs:
+      needs: crosstool
+      runs-on: ${{ matrix.host }}
+      strategy:
+        matrix:
+          host: ["windows-2022"]
+      steps:
+        - name: "download ct-ng"
+          uses: actions/download-artifact@v4
+          with:
+            name: crosstool.${{ matrix.host }}
+        - name: "extract ct-ng"
+          run: |
+            tar -xf ct-ng.tar
+        - name: cache tarballs
+          id: cache
+          uses: actions/cache@v4
+          with:
+            path: src.tar
+            key: src.tar-${{ hashFiles('.local/share/crosstool-ng/packages') }}-${{ hashFiles('.local/share/crosstool-ng/samples') }}
+            restore-keys: |
+              src.tar-${{ hashFiles('.local/share/crosstool-ng/packages') }}-
+              src.tar-
+        - name: extract tarballs
+          run: |
+            tar -xvf src.tar || true
+            touch stamp
+        - name: "prereq Linux"
+          if: ${{ runner.os == 'Linux' }}
+          run: |
+            sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin texinfo
+            echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
+        - name: "ct-ng source"
+          run: |
+            mkdir -p src
+            for sample in aarch64-unknown-linux-gnu arm-picolibc-eabi \
+                  arm-unknown-linux-musleabi armv6-nommu-linux-uclibcgnueabi \
+                  x86_64-w64-mingw32; do \
+                  ct-ng $sample; \
+                  sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config; \
+                  sed -i -e '/CT_LOCAL_TARBALLS_DIR/s/HOME/CT_TOP_DIR/' .config; \
+                  sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config; \
+                  sed -i -e 's/^.*CT_COMP_TOOLS_BISON.*$/CT_COMP_TOOLS_BISON=y/' .config; \
+                  sed -i -e 's/^.*CT_COMP_TOOLS_M4.*$/CT_COMP_TOOLS_M4=y/' .config; \
+                  sed -i -e 's/^.*CT_COMP_TOOLS_MAKE.*$/CT_COMP_TOOLS_MAKE=y/' .config; \
+                  ct-ng olddefconfig; \
+                  ct-ng source; \
+            done
+            find src -type f -not -newer stamp -delete -print
+            tar -cvf src.tar src
+
+    toolchains:
+      needs: [crosstool, tarballs]
+      uses: ./.github/workflows/msys2-build-toolchains.yml
+      with:
+        samples: >-
+          [
+            "aarch64-unknown-linux-gnu"
+          ]
+
+  #  canadian-cross:
+  #    needs: [toolchains]
+  #    uses: ./.github/workflows/build-toolchains.yml
+  #    with:
+  #      samples: >-
+  #        ["x86_64-w64-mingw32,x86_64-pc-linux-gnu"]
+  #      canadian-cross: true
