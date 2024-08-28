@@ -76,6 +76,13 @@
         matrix:
           host: ["windows-2022"]
       steps:
+        - run: git config --global core.autocrlf input
+        - name: create case sensitive workspace volume for windows
+          if: ${{ runner.os == 'Windows' }}
+          run: |
+            cd ..
+            fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
+            cd crosstool-ng-msys2-builds
         - name: "prereq Windows"
           if: ${{ runner.os == 'Windows' }}
           uses: msys2/setup-msys2@v2
