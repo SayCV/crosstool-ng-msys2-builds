@@ -98,6 +98,7 @@ jobs:
         shell: msys2 {0}
         run: |
           echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
+          echo "PATH=$PATH
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
