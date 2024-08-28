@@ -39,7 +39,10 @@ jobs:
           # a Segmentation fault
           - {host: "macos-12", sample: "x86_64-w64-mingw32,x86_64-pc-linux-gnu"}
     steps:
-      - run: git config --global core.autocrlf input
+      - run: |
+          echo "MSYS_NO_PATHCONV=" >> $GITHUB_ENV
+          echo "MSYS=winsymlinks:native" >> $GITHUB_ENV
+          git config --global core.autocrlf input
       - name: create case sensitive workspace volume for windows
         if: ${{ runner.os == 'Windows' }}
         run: |
@@ -113,6 +116,7 @@ jobs:
       - name: build ${{ matrix.sample }} for ${{ matrix.host }}
         shell: msys2 {0}
         run: |
+          env
           mkdir -p src
           ct-ng ${{ matrix.sample }}
           sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config
