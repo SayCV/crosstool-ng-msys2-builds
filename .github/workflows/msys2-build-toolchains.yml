@@ -88,6 +88,12 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         shell: msys2 {0}
         run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          echo "workspace=${{ github.workspace }}" >> "$GITHUB_OUTPUT"
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
@@ -97,10 +103,10 @@ jobs:
         shell: msys2 {0}
         if: ${{ inputs.canadian-cross }}
         run: |
-          mkdir -p ${{ github.workspace }}/x86_64-w64-mingw32
-          tar -C ${{ github.workspace }}/x86_64-w64-mingw32 \
+          mkdir -p ${{ steps.strings.outputs.workspace }}/x86_64-w64-mingw32
+          tar -C ${{ steps.strings.outputs.workspace }}/x86_64-w64-mingw32 \
               -xf x86_64-w64-mingw32.${{ matrix.host }}.tar
-          echo "${{ github.workspace }}/x86_64-w64-mingw32/bin" >> "$GITHUB_PATH"
+          echo "${{ steps.strings.outputs.workspace }}/x86_64-w64-mingw32/bin" >> "$GITHUB_PATH"
       - name: build ${{ matrix.sample }} for ${{ matrix.host }}
         shell: msys2 {0}
         run: |
@@ -120,7 +126,7 @@ jobs:
         shell: msys2 {0}
         if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
         run: |
-          tar -C ${{ github.workspace }}/x-tools/${{ matrix.sample }} \
+          tar -C ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }} \
               -cf ${{ matrix.sample }}.${{ matrix.host }}.tar .
       - name: upload ${{ matrix.sample }}.${{ matrix.host }} tarball
         if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
