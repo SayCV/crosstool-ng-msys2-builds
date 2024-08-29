@@ -147,6 +147,4 @@ jobs:
           path: |
             build.log
             .config
-            \.build\x86_64-unknown-linux-gnu\build\build-cc-gcc-final\config.log
-            \.build\x86_64-unknown-linux-gnu\build\build-cc-gcc-final\Makefile
         if: ${{ always() }}
