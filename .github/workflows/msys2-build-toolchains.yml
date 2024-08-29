@@ -53,6 +53,7 @@ jobs:
       - name: "prereq Windows"
         if: ${{ runner.os == 'Windows' }}
         run: |
+          echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
           git config --global core.autocrlf input
           cd ..
           fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
@@ -84,21 +85,6 @@ jobs:
         continue-on-error: true
         run: |
           tar -xvf src.tar
-      - name: prereq Linux
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin meson ninja-build texinfo
-          echo "${{ github.workspace }}/.local/bin" >> "$GITHUB_PATH"
-      - name: prereq macOS
-        if: ${{ runner.os == 'macOS' }}
-        run: |
-          brew install autoconf automake bash binutils gawk gnu-sed \
-               gnu-tar help2man make ncurses pkg-config texinfo libtool
-          echo "${{ github.workspace }}/.local/bin" >> "$GITHUB_PATH"
-      - name: "prereq Msys"
-        if: ${{ runner.os == 'Windows' }}
-        shell: msys2 {0}
-        run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
