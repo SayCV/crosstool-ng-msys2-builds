@@ -20,6 +20,7 @@ jobs:
     strategy:
       matrix:
         host: ["windows-2022"]
+        sys: ["MSYS"]
         sample: ${{ fromJSON(inputs.samples) }}
         exclude:
           # Exclude both glibc & uClibc ARC Linux toolchains as
@@ -39,31 +40,23 @@ jobs:
           # a Segmentation fault
           - {host: "macos-12", sample: "x86_64-w64-mingw32,x86_64-pc-linux-gnu"}
     steps:
-      - run: git config --global core.autocrlf input
-      - name: create case sensitive workspace volume for windows
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          cd ..
-          fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
-          cd crosstool-ng-msys2-builds
-      - name: create case sensitive workspace volume for macOS
-        if: ${{ runner.os == 'macOS' }}
-        run: |
-          cd ..
-          rmdir crosstool-ng
-          hdiutil create "${HOME}/Workspace.sparseimage" -volname crosstool-ng -type SPARSE -size 20g -fs HFSX
-          hdiutil mount "${HOME}/Workspace.sparseimage" -mountroot /Users/runner/work/crosstool-ng
-          cd crosstool-ng
-      - name: "prereq Windows"
+      - name: "prereq MSYS2"
         if: ${{ runner.os == 'Windows' }}
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MSYS
+          msystem: ${{ matrix.sys }}
           update: true
           install: >-
             base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
             autoconf-archive gettext-devel ncurses-devel
           path-type: inherit
+      - name: "prereq Windows"
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          git config --global core.autocrlf input
+          cd ..
+          fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
+          cd crosstool-ng-msys2-builds
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0

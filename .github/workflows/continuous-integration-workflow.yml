@@ -10,12 +10,23 @@
       runs-on: ${{ matrix.host }}
       strategy:
         matrix:
-          host: ["windows-2022"]
+          include:
+            - { host: "windows-2022", sys: MSYS }
       steps:
-        - run: git config --global core.autocrlf input
-        - name: create case sensitive workspace volume for windows
+        - name: "prereq MSYS2"
+          if: ${{ runner.os == 'Windows' }}
+          uses: msys2/setup-msys2@v2
+          with:
+            msystem: ${{ matrix.sys }}
+            update: true
+            install: >-
+              base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
+              autoconf-archive gettext-devel ncurses-devel
+            path-type: inherit
+        - name: "prereq Windows"
           if: ${{ runner.os == 'Windows' }}
           run: |
+            git config --global core.autocrlf input
             cd ..
             fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
             cd crosstool-ng-msys2-builds
@@ -23,22 +34,8 @@
           uses: actions/checkout@v4
           with:
             repository: 'crosstool-ng/crosstool-ng'
-            ref: a211eaefd11d8e91fdf105d63caa72dd98af3a9f #'master'
+            ref: 'master'
             fetch-depth: 0
-        - name: "prereq Linux"
-          if: ${{ runner.os == 'Linux' }}
-          run: |
-            sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin meson ninja-build texinfo
-        - name: "prereq Windows"
-          if: ${{ runner.os == 'Windows' }}
-          uses: msys2/setup-msys2@v2
-          with:
-            msystem: MSYS
-            update: true
-            install: >-
-              base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
-              autoconf-archive gettext-devel ncurses-devel
-            path-type: inherit
         - name: "build ct-ng"
           shell: msys2 {0}
           run: |
@@ -73,25 +70,26 @@
       runs-on: ${{ matrix.host }}
       strategy:
         matrix:
-          host: ["windows-2022"]
+          include:
+            - { host: "windows-2022", sys: MSYS }
       steps:
-        - run: git config --global core.autocrlf input
-        - name: create case sensitive workspace volume for windows
-          if: ${{ runner.os == 'Windows' }}
-          run: |
-            cd ..
-            fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
-            cd crosstool-ng-msys2-builds
-        - name: "prereq Windows"
+        - name: "prereq MSYS2"
           if: ${{ runner.os == 'Windows' }}
           uses: msys2/setup-msys2@v2
           with:
-            msystem: MSYS
+            msystem: ${{ matrix.sys }}
             update: true
             install: >-
               base-devel msys2-runtime-devel autotools intltool libtool gcc bison flex gperf help2man meson ninja texinfo patch unzip
               autoconf-archive gettext-devel ncurses-devel
             path-type: inherit
+        - name: "prereq Windows"
+          if: ${{ runner.os == 'Windows' }}
+          run: |
+            git config --global core.autocrlf input
+            cd ..
+            fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
+            cd crosstool-ng-msys2-builds
         - name: "download ct-ng"
           uses: actions/download-artifact@v4
           with:
