@@ -53,7 +53,6 @@ jobs:
       - name: "prereq Windows"
         if: ${{ runner.os == 'Windows' }}
         run: |
-          echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
           git config --global core.autocrlf input
           cd ..
           fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
@@ -85,6 +84,10 @@ jobs:
         continue-on-error: true
         run: |
           tar -xvf src.tar
+      - name: "prereq PATH"
+        if: ${{ runner.os == 'Windows' }}
+        shell: msys2 {0}
+        run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4

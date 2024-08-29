@@ -117,7 +117,7 @@
           run: |
             sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin texinfo
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-        - name: "prereq Msys"
+        - name: "prereq PATH"
           if: ${{ runner.os == 'Windows' }}
           shell: msys2 {0}
           run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
