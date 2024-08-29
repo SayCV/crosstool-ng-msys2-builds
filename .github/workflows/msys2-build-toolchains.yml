@@ -93,7 +93,7 @@ jobs:
         id: strings
         shell: bash
         run: |
-          echo "workspace=${{ github.workspace }}" >> "$GITHUB_OUTPUT"
+          echo "workspace="$(cygpath '${{ github.workspace }}')"" >> "$GITHUB_OUTPUT"
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
