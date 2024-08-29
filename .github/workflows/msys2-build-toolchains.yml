@@ -91,7 +91,7 @@ jobs:
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings
-        shell: bash
+        shell: msys2 {0}
         run: |
           echo "workspace="$(cygpath '${{ github.workspace }}')"" >> "$GITHUB_OUTPUT"
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
