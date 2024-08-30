@@ -30,6 +30,16 @@
             cd ..
             fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
             cd crosstool-ng-msys2-builds
+        - name: update environment variables
+          # See:
+          #   - On Bazel cache: https://docs.bazel.build/versions/master/output_directories.html
+          #   - On problems with `tar.exe`: https://github.com/actions/toolkit/issues/632
+          #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
+          run: |
+            echo "PATH=C:\msys64\usr\bin:$env:GITHUB_WORKSPACE\.local\bin:$env:PATH" >> $env:GITHUB_ENV
+            echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
+            echo "MSYS_NO_PATHCONV=1" >> $env:GITHUB_ENV
+            echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
         - name: "clone"
           uses: actions/checkout@v4
           with:
@@ -90,6 +100,16 @@
             cd ..
             fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
             cd crosstool-ng-msys2-builds
+        - name: update environment variables
+          # See:
+          #   - On Bazel cache: https://docs.bazel.build/versions/master/output_directories.html
+          #   - On problems with `tar.exe`: https://github.com/actions/toolkit/issues/632
+          #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
+          run: |
+            echo "PATH=C:\msys64\usr\bin:$env:GITHUB_WORKSPACE\.local\bin:$env:PATH" >> $env:GITHUB_ENV
+            echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
+            echo "MSYS_NO_PATHCONV=1" >> $env:GITHUB_ENV
+            echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
         - name: "download ct-ng"
           uses: actions/download-artifact@v4
           with:
@@ -117,10 +137,6 @@
           run: |
             sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin texinfo
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-        - name: "prereq PATH"
-          if: ${{ runner.os == 'Windows' }}
-          shell: msys2 {0}
-          run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
         - name: "ct-ng source"
           shell: msys2 {0}
           run: |
