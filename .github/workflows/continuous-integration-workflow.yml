@@ -43,7 +43,7 @@
             echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
         - name: Inspect environment variables
           run: env
-        - name: "clone"
+        - name: "Clone"
           uses: actions/checkout@v4
           with:
             repository: 'crosstool-ng/crosstool-ng'
