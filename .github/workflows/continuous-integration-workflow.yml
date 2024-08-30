@@ -38,7 +38,7 @@
           #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
           run: |
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-            echo "PATH='${{ steps.msys2.outputs.msys2-location }}'\usr\bin:$env:PATH" >> $env:GITHUB_ENV
+            echo "PATH=${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
             echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
             echo "MSYS_NO_PATHCONV=" >> $env:GITHUB_ENV
             echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
@@ -112,7 +112,7 @@
           #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
           run: |
             echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-            echo "PATH='${{ steps.msys2.outputs.msys2-location }}'\usr\bin:$env:PATH" >> $env:GITHUB_ENV
+            echo "PATH=${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
             echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
             echo "MSYS_NO_PATHCONV=" >> $env:GITHUB_ENV
             echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
