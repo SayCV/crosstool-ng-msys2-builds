@@ -37,8 +37,7 @@
           #   - On problems with `tar.exe`: https://github.com/actions/toolkit/issues/632
           #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
           run: |
-            echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-            echo "PATH=${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
+            echo "PATH=$GITHUB_WORKSPACE/.local/bin:${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
             echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
             echo "MSYS_NO_PATHCONV=" >> $env:GITHUB_ENV
             echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
@@ -111,8 +110,7 @@
           #   - On problems with `tar.exe`: https://github.com/actions/toolkit/issues/632
           #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
           run: |
-            echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-            echo "PATH=${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
+            echo "PATH=$GITHUB_WORKSPACE/.local/bin:${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
             echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
             echo "MSYS_NO_PATHCONV=" >> $env:GITHUB_ENV
             echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
@@ -138,6 +136,7 @@
         - name: extract tarballs
           shell: msys2 {0}
           run: |
+            ls -l
             tar -xvf src.tar || true
             touch stamp
         - name: "prereq Linux"
@@ -164,7 +163,9 @@
                   ct-ng source; \
             done
             find src -type f -not -newer stamp -delete -print
+            ls -R src
             tar -cvf src.tar src
+            ls -l
 
     toolchains:
       needs: [crosstool, tarballs]
