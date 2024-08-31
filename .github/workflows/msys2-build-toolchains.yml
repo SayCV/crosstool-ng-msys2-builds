@@ -43,7 +43,6 @@ jobs:
       - name: "prereq MSYS2"
         if: ${{ runner.os == 'Windows' }}
         uses: msys2/setup-msys2@v2
-        id: msys2
         with:
           msystem: ${{ matrix.sys }}
           update: true
@@ -58,18 +57,6 @@ jobs:
           cd ..
           fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
           cd crosstool-ng-msys2-builds
-      - name: Update environment variables
-        # See:
-        #   - On Bazel cache: https://docs.bazel.build/versions/master/output_directories.html
-        #   - On problems with `tar.exe`: https://github.com/actions/toolkit/issues/632
-        #   - For symlinking: https://www.joshkel.com/2018/01/18/symlinks-in-windows/
-        run: |
-          echo "PATH=${{ github.workspace }}/.local/bin:${{ steps.msys2.outputs.msys2-location }}\usr\bin:$env:PATH" >> $env:GITHUB_ENV
-          echo "MSYS=winsymlinks:native" >> $env:GITHUB_ENV
-          echo "MSYS_NO_PATHCONV=" >> $env:GITHUB_ENV
-          echo "MSYS2_ARG_CONV_EXCL='*'" >> $env:GITHUB_ENV
-      - name: Inspect environment variables
-        run: env
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -90,9 +77,11 @@ jobs:
         shell: msys2 {0}
         continue-on-error: true
         run: |
-          ls -l
           tar -xvf src.tar
-          ls -R src
+      - name: "prereq PATH"
+        if: ${{ runner.os == 'Windows' }}
+        shell: msys2 {0}
+        run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings
@@ -130,6 +119,9 @@ jobs:
           sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
           test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
           ct-ng build
+        env:
+          MSYS_NO_PATHCONV:
+          MSYS: winsymlinks:native
       - name: create ${{ matrix.sample }}.${{ matrix.host }} tarball
         shell: msys2 {0}
         if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
