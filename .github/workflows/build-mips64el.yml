@@ -31,7 +31,8 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
   Detect-versions:
-    needs: [Set-repos, ]
+    needs:
+      - Set-repos
     uses: ./.github/workflows/s1-detect-versions.yml
     with:
       repos: >-
