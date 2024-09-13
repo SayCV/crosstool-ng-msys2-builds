@@ -87,6 +87,9 @@ jobs:
         working-directory: ${{ github.workspace }}/${{ env.ctngDir }}
         run: |
           uname -a
+          cd ${{ github.workspace }}
+          ls -R
+          cd -
           ./bootstrap
           ./configure --prefix="$GITHUB_WORKSPACE/.local/"
           make
