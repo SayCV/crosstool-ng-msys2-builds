@@ -32,9 +32,11 @@ jobs:
 
   Detect-versions:
     needs: [Set-repos, ]
+    strategy:
+      matrix: ${{ needs.Set-repos.outputs.repos }}
     uses: ./.github/workflows/s1-detect-versions.yml
     with:
       repos: >-
         [
-          "${{ needs.Set-repos.outputs.repos }}"
+          "${{ matrix }}"
         ]
