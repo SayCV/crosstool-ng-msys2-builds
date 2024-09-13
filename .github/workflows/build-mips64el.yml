@@ -32,28 +32,13 @@ jobs:
 
   Detect-versions:
     needs: [Set-repos, ]
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      fail-fast: false
-    outputs:
-      ctVer:   ${{ steps.detect-versions.outputs.ctVer }}
-      gccVer:  ${{ steps.detect-versions.outputs.gccVer }}
-      gmpVer:  ${{ steps.detect-versions.outputs.gmpVer }}
-      mpcVer:  ${{ steps.detect-versions.outputs.mpcVer }}
-      mpfrVer: ${{ steps.detect-versions.outputs.mpfrVer }}
-    steps:
-      - name: "😄 Checkout"
-        uses: actions/checkout@v4
-      - name: detect versions
-        id: detect-versions
-        uses: ./.github/workflows/s1-detect-versions.yml
-        with:
-          sample: >-
-            [
-              "${{ needs.Set-repos.outputs.sample }}"
-            ]
-          repos: "${{ needs.Set-repos.outputs.repos }}"
+    uses: ./.github/workflows/s1-detect-versions.yml
+    with:
+      sample: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
 
   Install-crosstool:
     if: ${{ 'fasle' == 'true' }}
