@@ -39,6 +39,10 @@ jobs:
         repos: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
     uses: ./.github/workflows/s1-detect-versions.yml
     with:
+      sample: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
       repos: >-
         [
           "${{ matrix.repos }}"
