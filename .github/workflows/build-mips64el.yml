@@ -92,16 +92,30 @@ jobs:
       max-parallel: 2
       fail-fast: false
     steps:
-      - name: generate release info
-        env:
-          ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
-          gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
-          gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
-          mpcVer:  ${{ needs.Detect-versions.outputs.mpcVer }}
-          mpfrVer: ${{ needs.Detect-versions.outputs.mpfrVer }}
-        run:
-          echo "::notice ctVer=$ctVer"
-          echo "::notice gccVer=$gccVer"
-          echo "::notice gmpVer=$gmpVer"
-          echo "::notice mpcVer=$mpcVer"
-          echo "::notice mpfrVer=$mpfrVer
+    - name: generate release info
+      env:
+        ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
+        gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
+        gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
+        mpcVer:  ${{ needs.Detect-versions.outputs.mpcVer }}
+        mpfrVer: ${{ needs.Detect-versions.outputs.mpfrVer }}
+      run:
+        echo "::notice ctVer=$ctVer"
+        echo "::notice gccVer=$gccVer"
+        echo "::notice gmpVer=$gmpVer"
+        echo "::notice mpcVer=$mpcVer"
+        echo "::notice mpfrVer=$mpfrVer
+        echo "GCC $gccVer" > ${{ github.workspace }}-VERSIONS.txt
+        echo "GMP $gmpVer" >> ${{ github.workspace }}-VERSIONS.txt
+        echo "MPC $mpcVer" >> ${{ github.workspace }}-VERSIONS.txt
+        echo "MPFR $mpfrVer" >> ${{ github.workspace }}-VERSIONS.txt
+
+    - name: "💛 Upload to Release"
+      id: upload_to_release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          *.jed
+          *.bit
+          *.log
+        body_path: ${{ github.workspace }}-VERSIONS.txt
