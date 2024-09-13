@@ -32,13 +32,76 @@ jobs:
 
   Detect-versions:
     needs: [Set-repos, ]
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 2
       fail-fast: false
-    uses: ./.github/workflows/s1-detect-versions.yml
+    outputs:
+      ctVer:   ${{ steps.detect-versions.outputs.ctVer }}
+      gccVer:  ${{ steps.detect-versions.outputs.gccVer }}
+      gmpVer:  ${{ steps.detect-versions.outputs.gmpVer }}
+      mpcVer:  ${{ steps.detect-versions.outputs.mpcVer }}
+      mpfrVer: ${{ steps.detect-versions.outputs.mpfrVer }}
+    steps:
+      - name: detect versions
+        id: detect-versions
+        uses: ./.github/workflows/s1-detect-versions.yml
+        with:
+          sample: >-
+            [
+              "${{ needs.Set-repos.outputs.sample }}"
+            ]
+          repos: "${{ needs.Set-repos.outputs.repos }}"
+
+  Install-crosstool:
+    if: ${{ 'fasle' == 'true' }}
+    needs: [Set-repos, Detect-versions]
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+    uses: ./.github/workflows/s2-install-crosstool-msys2.yml
     with:
       sample: >-
         [
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
+
+  Build-toolchain:
+    if: ${{ 'fasle' == 'true' }}
+    needs: [Set-repos, Detect-versions, Install-crosstool]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+    steps:
+      - name: build toolchains in msys2
+        id: build-toolchains-msys2
+        uses: ./.github/workflows/s3-build-toolchains-msys2.yml
+        with:
+          samples: >-
+            [
+              "${{ needs.Set-repos.outputs.sample }}"
+            ]
+          repos: "${{ needs.Set-repos.outputs.repos }}"
+
+  Release:
+    needs: [Set-repos, Detect-versions, Build-toolchain]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+    steps:
+      - name: generate release info
+        env:
+          ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
+          gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
+          gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
+          mpcVer:  ${{ needs.Detect-versions.outputs.mpcVer }}
+          mpfrVer: ${{ needs.Detect-versions.outputs.mpfrVer }}
+        run:
+          echo "::notice ctVer=$ctVer"
+          echo "::notice gccVer=$gccVer"
+          echo "::notice gmpVer=$gmpVer"
+          echo "::notice mpcVer=$mpcVer"
+          echo "::notice mpfrVer=$mpfrVer
