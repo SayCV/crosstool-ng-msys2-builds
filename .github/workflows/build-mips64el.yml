@@ -1,5 +1,5 @@
 ---
-name: "Detect versions"
+name: "Build mips64el"
 
 env:
   sample: mips64-unknown-linux-gnu
@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       repos: ${{ steps.generate-matrix.outputs.repos }}
+      sample: ${{ env.sample }}
     steps:
       - name: "😄 Checkout"
         uses: actions/checkout@v4
@@ -29,103 +30,11 @@ jobs:
           cat  ${{ env.CONFIGURATION }} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-  Get-ctng:
-    name: "🐎 Get ctng"
-    runs-on: ubuntu-latest
-    needs:
-      - Set-repos
-    strategy:
-      max-parallel: 2
-      fail-fast: false
-      matrix:
-        repos: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
-    env:
-      ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
-
-      ctngRepoHost: ${{ matrix.repos.ctngSource.repo_host }}
-      ctngRepoUser: ${{ matrix.repos.ctngSource.repo_user }}
-      ctngRepoName: ${{ matrix.repos.ctngSource.repo_name }}
-      ctngName: ${{ matrix.repos.ctngSource.name }}
-      ctngBranch: ${{ matrix.repos.ctngSource.branch }}
-      ctngCommit: ${{ matrix.repos.ctngSource.commit }}
-    outputs:
-      ctVer: ${{ steps.parse-ctng-pkg-ver.outputs.ctVer }}
-      gccVer: ${{ steps.parse-ctng-pkg-ver.outputs.gccVer }}
-      gmpVer: ${{ steps.parse-ctng-pkg-ver.outputs.gmpVer }}
-      mpcVer: ${{ steps.parse-ctng-pkg-ver.outputs.mpcVer }}
-      mpfrVer: ${{ steps.parse-ctng-pkg-ver.outputs.mpfrVer }}
-    steps:
-      - name: "✨ Create working dir"
-        run: mkdir -p $ctngDir && ls
-      - name: "✨ Prereq Linux"
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin meson ninja-build texinfo
-
-      - name: "🌟 Parse ct-ng commit sha"
-        if: ${{ env.ctngCommit == '' }}
-        id: parse-ct-ng-commit-sha
-        run: |
-          ctngCommit="$(git ls-remote https://$ctngRepoHost/$ctngRepoUser/$ctngRepoName --tags $ctngBranch | awk '{print $1;}')"
-          echo "ctngCommit=$ctngCommit" >> $GITHUB_ENV
-      - name: "✨ Restore crosstool-parse-ver cache if available"
-        id: restore-crosstool-parse-ver-cache
-        uses: actions/cache@v4
-        with:
-          path: ct-ng.tar
-          key: crosstool-parse-ver-${{ runner.os }}-${{ env.ctngCommit }}
-      - name: "😆 Clone crosstool-ng"
-        if: ${{ steps.restore-crosstool-parse-ver-cache.outputs.cache-hit != 'true' }}
-        uses: actions/checkout@v4
-        with:
-          repository: 'crosstool-ng/crosstool-ng'
-          ref: '${{ env.ctngCommit }}'
-          fetch-depth: 0
-          path: ${{ env.ctngDir }}
-      - name: "build ct-ng for parse version"
-        if: ${{ steps.restore-crosstool-parse-ver-cache.outputs.cache-hit != 'true' }}
-        working-directory: ${{ github.workspace }}/${{ env.ctngDir }}
-        run: |
-          uname -a
-          ls
-          ./bootstrap
-          ./configure --prefix="$GITHUB_WORKSPACE/.local/"
-          make
-          make install
-          cd $GITHUB_WORKSPACE
-          tar -cf ct-ng.tar .local/
-      - name: "upload ct-ng for parse version"
-        if: ${{ steps.restore-crosstool-parse-ver-cache.outputs.cache-hit != 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: crosstool-parse-ver-${{ env.ctngCommit }}.${{ runner.os }}
-          path: ct-ng.tar
-      - name: "upload config.log for parse version"
-        if: ${{ steps.restore-crosstool-parse-ver-cache.outputs.cache-hit != 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: config.log.parse-ver-${{ env.ctngCommit }}.${{ runner.os }}
-          path: ${{ github.workspace }}/config.log
-      - name: "prereq PATH"
-        run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
-      - name: "😆 Parse gcc version"
-        id: parse-ctng-pkg-ver
-        run: |
-          ct-ng ${{ env.sample }}
-          source .config
-          echo "::notice CT_VERSION=$CT_VERSION"
-          echo "::notice CT_LINUX_VERSION=$CT_LINUX_VERSION"
-          echo "::notice CT_BINUTILS_VERSION=$CT_BINUTILS_VERSION"
-          echo "::notice CT_GLIBC_VERSION=$CT_GLIBC_VERSION"
-          echo "::notice CT_GCC_VERSION=$CT_GCC_VERSION"
-          echo "::notice CT_GMP_VERSION=$CT_GMP_VERSION"
-          echo "::notice CT_MPC_VERSION=$CT_MPC_VERSION"
-          echo "::notice CT_MPFR_VERSION=$CT_MPFR_VERSION"
-          echo "ctVer=$CT_VERSION" >> $GITHUB_OUTPUT
-          echo "linuxVer=$CT_LINUX_VERSION" >> $GITHUB_OUTPUT
-          echo "binutilsVer=$CT_BINUTILS_VERSION" >> $GITHUB_OUTPUT
-          echo "glibcVer=$CT_GLIBC_VERSION" >> $GITHUB_OUTPUT
-          echo "gccVer=$CT_GCC_VERSION" >> $GITHUB_OUTPUT
-          echo "gmpVer=$CT_GMP_VERSION" >> $GITHUB_OUTPUT
-          echo "mpcVer=$CT_MPC_VERSION" >> $GITHUB_OUTPUT
-          echo "mpfrVer=$CT_MPFR_VERSION" >> $GITHUB_OUTPUT
+  Detect-versions:
+    needs: [Set-repos, ]
+    uses: ./.github/workflows/s1-detect-versions.yml
+    with:
+      repos: >-
+        [
+          "${{ needs.Set-repos.outputs.repos }}"
+        ]
