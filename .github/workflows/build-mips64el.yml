@@ -2,7 +2,7 @@
 name: "Build mips64el"
 
 env:
-  sample: "mips64-unknown-linux-gnu"
+  sample: mips64-unknown-linux-gnu
   CONFIGURATION: "repos.json"
   #OUT_DIR: "out"
 
@@ -35,7 +35,9 @@ jobs:
     uses: ./.github/workflows/s1-detect-versions.yml
     with:
       sample: >-
-        ${{ needs.Set-repos.outputs.sample }}
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
       repos: >-
         [
           "${{ needs.Set-repos.outputs.repos }}"
