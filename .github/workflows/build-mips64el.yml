@@ -33,10 +33,13 @@ jobs:
   Detect-versions:
     needs: [Set-repos, ]
     strategy:
-      matrix: ${{ needs.Set-repos.outputs.repos }}
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        repos: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
     uses: ./.github/workflows/s1-detect-versions.yml
     with:
       repos: >-
         [
-          "${{ matrix }}"
+          "${{ matrix.repos }}"
         ]
