@@ -88,7 +88,6 @@ jobs:
         run: |
           uname -a
           ls
-          cd -
           ./bootstrap
           ./configure --prefix="$GITHUB_WORKSPACE/.local/"
           make
