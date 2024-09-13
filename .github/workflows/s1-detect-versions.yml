@@ -8,7 +8,7 @@ on:
   workflow_call:
     inputs:
       sample:
-        description: Stringified JSON of sample
+        description: String of sample
         required: true
         type: string
       repos:
@@ -24,7 +24,7 @@ jobs:
       max-parallel: 2
       fail-fast: false
       matrix:
-        sample: ${{ fromJSON(inputs.sample) }}
+        sample: ${{ inputs.sample }}
         repos: ${{ fromJSON(inputs.repos) }}
     env:
       ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
