@@ -5,7 +5,11 @@ on:
   workflow_call:
     inputs:
       samples:
-        description: Stringified JSON list of samples
+        description: Stringified JSON of samples
+        required: true
+        type: string
+      repos:
+        description: Stringified JSON of repos
         required: true
         type: string
       canadian-cross:
