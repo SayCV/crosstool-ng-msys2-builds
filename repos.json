@@ -1,0 +1,11 @@
+[  {
+    "ctngSource": {
+      "name": "crosstool-ng",
+      "repo_host": "github.com",
+      "repo_user": "crosstool-ng",
+      "repo_name": "crosstool-ng",
+      "branch": "master",
+      "commit": "902fab451bdaf4a44f834becee3c3ba5a1894e05"
+    }
+  }
+]

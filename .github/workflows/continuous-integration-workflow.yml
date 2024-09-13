@@ -3,7 +3,9 @@ name: CI
 
 on:
   push:
-  pull_request:
+    tags:
+      - "v*-rev*"
+  workflow_dispatch:
 
 jobs:
   crosstool:

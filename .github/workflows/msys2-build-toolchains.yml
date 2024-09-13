@@ -124,13 +124,11 @@ jobs:
           MSYS: winsymlinks:native
       - name: create ${{ matrix.sample }}.${{ matrix.host }} tarball
         shell: msys2 {0}
-        if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
         run: |
           cp -vrf /usr/bin/msys-2.0.dll ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }}/bin/.
           tar -C ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }} \
               -cf ${{ matrix.sample }}.${{ matrix.host }}.tar .
       - name: upload ${{ matrix.sample }}.${{ matrix.host }} tarball
-        if: ${{ matrix.sample == 'aarch64-unknown-linux-gnu' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.sample }}.${{ matrix.host }}.tar
