@@ -91,7 +91,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: config.log.detect-versions-${{ env.ctngCommit }}.${{ runner.os }}
-          path: ${{ github.workspace }}/config.log
+          path: ${{ github.workspace }}/${{ env.ctngDir }}/config.log
+      - name: "extract ct-ng"
+        if: ${{ steps.restore-crosstool-detect-versions-cache.outputs.cache-hit == 'true' }}
+        run: |
+          tar -xvf ct-ng.tar
       - name: "prereq PATH"
         run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: "😆 Parse gcc version"
