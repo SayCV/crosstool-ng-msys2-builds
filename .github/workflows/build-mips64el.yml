@@ -2,7 +2,7 @@
 name: "Build mips64el"
 
 env:
-  sample: mips64-unknown-linux-gnu
+  sample: "mips64-unknown-linux-gnu"
   CONFIGURATION: "repos.json"
   #OUT_DIR: "out"
 
