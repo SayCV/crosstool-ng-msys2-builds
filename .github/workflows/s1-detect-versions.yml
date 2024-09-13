@@ -24,9 +24,9 @@ jobs:
       max-parallel: 2
       fail-fast: false
       matrix:
-        sample: ${{ inputs.sample }}
         repos: ${{ fromJSON(inputs.repos) }}
     env:
+      sample: ${{ inputs.sample }}
       ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
 
       ctngRepoHost: ${{ matrix.repos.ctngSource.repo_host }}
