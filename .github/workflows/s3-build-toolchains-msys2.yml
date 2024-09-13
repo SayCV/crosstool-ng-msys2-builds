@@ -1,5 +1,5 @@
 ---
-name: Build toolchains
+name: "S3 - Build toolchain"
 
 on:
   workflow_call:

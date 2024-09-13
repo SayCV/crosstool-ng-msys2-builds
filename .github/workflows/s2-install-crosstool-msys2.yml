@@ -1,5 +1,5 @@
 ---
-name: "Detect versions"
+name: "S2 - Install crosstool"
 
 env:
   CONFIGURATION: "repos.json"
