@@ -79,13 +79,13 @@ jobs:
     steps:
       - name: generate release info
         env:
-          locout:  ${{ needs.Detect-versions.outputs}}
           ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
           gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
           gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
           mpcVer:  ${{ needs.Detect-versions.outputs.mpcVer }}
           mpfrVer: ${{ needs.Detect-versions.outputs.mpfrVer }}
         run:
+          echo "::notice needs.Detect-versions.outputs=${{ needs.Detect-versions.outputs }}"
           echo "::notice ctVer=$ctVer"
           echo "::notice gccVer=$gccVer"
           echo "::notice gmpVer=$gmpVer"
