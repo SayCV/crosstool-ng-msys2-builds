@@ -1,21 +1,34 @@
 ---
 name: "S2 - Install crosstool"
 
-on:
-  workflow_call:
-    inputs:
-      sample:
-        description: Stringified JSON of sample
-        required: true
-        type: string
-      repos:
-        description: Stringified JSON of repos
-        required: true
-        type: string
-      dryrun:
-        default: false
-        required: false
-        type: boolean
+# on:
+#   workflow_call:
+#     inputs:
+#       sample:
+#         description: Stringified JSON of sample
+#         required: true
+#         type: string
+#       repos:
+#         description: Stringified JSON of repos
+#         required: true
+#         type: string
+#       dryrun:
+#         default: false
+#         required: false
+#         type: boolean
+inputs:
+  sample:
+    description: Stringified JSON of sample
+    required: true
+    type: string
+  repos:
+    description: Stringified JSON of repos
+    required: true
+    type: string
+  dryrun:
+    default: false
+    required: false
+    type: boolean
 
 jobs:
   crosstool:

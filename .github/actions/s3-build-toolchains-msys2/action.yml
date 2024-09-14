@@ -1,26 +1,44 @@
 ---
 name: "S3 - Build toolchain"
 
-on:
-  workflow_call:
-    inputs:
-      samples:
-        description: Stringified JSON of samples
-        required: true
-        type: string
-      repos:
-        description: Stringified JSON of repos
-        required: true
-        type: string
-      canadian-cross:
-        description: Build Canadian Cross toolchain(x86_64-w64-mingw32)
-        default: false
-        required: false
-        type: boolean
-      dryrun:
-        default: false
-        required: false
-        type: boolean
+#on:
+#  workflow_call:
+#    inputs:
+#      samples:
+#        description: Stringified JSON of samples
+#        required: true
+#        type: string
+#      repos:
+#        description: Stringified JSON of repos
+#        required: true
+#        type: string
+#      canadian-cross:
+#        description: Build Canadian Cross toolchain(x86_64-w64-mingw32)
+#        default: false
+#        required: false
+#        type: boolean
+#      dryrun:
+#        default: false
+#        required: false
+#        type: boolean
+inputs:
+  samples:
+    description: Stringified JSON of samples
+    required: true
+    type: string
+  repos:
+    description: Stringified JSON of repos
+    required: true
+    type: string
+  canadian-cross:
+    description: Build Canadian Cross toolchain(x86_64-w64-mingw32)
+    default: false
+    required: false
+    type: boolean
+  dryrun:
+    default: false
+    required: false
+    type: boolean
 
 jobs:
   build:
