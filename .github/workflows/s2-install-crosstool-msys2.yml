@@ -56,13 +56,28 @@ jobs:
           cd ..
           fsutil file SetCaseSensitiveInfo crosstool-ng-msys2-builds enable
           cd crosstool-ng-msys2-builds
-      - name: "clone"
+      - name: "🌟 Parse ct-ng commit sha"
+        if: ${{ env.ctngCommit == '' }}
+        id: parse-ct-ng-commit-sha
+        run: |
+          ctngCommit="$(git ls-remote https://$ctngRepoHost/$ctngRepoUser/$ctngRepoName --tags $ctngBranch | awk '{print $1;}')"
+          echo "ctngCommit=$ctngCommit" >> $GITHUB_ENV
+      - name: "✨ Restore ct-ng install cache if available"
+        id: restore-crosstool-install-cache
+        uses: actions/cache@v4
+        with:
+          path: ct-ng.tar
+          key: crosstool-${{ runner.os }}-${{ env.ctngCommit }}
+      - name: "😆 Clone ct-ng"
+        if: ${{ steps.restore-crosstool-install-cache.outputs.cache-hit != 'true' }}
         uses: actions/checkout@v4
         with:
           repository: 'crosstool-ng/crosstool-ng'
-          ref: 'master'
+          ref: '${{ env.ctngCommit }}'
           fetch-depth: 0
+          # path: ${{ env.ctngDir }}
       - name: "build ct-ng"
+        if: ${{ steps.restore-crosstool-install-cache.outputs.cache-hit != 'true' }}
         shell: msys2 {0}
         run: |
           uname -a
@@ -82,12 +97,12 @@ jobs:
       - name: "upload ct-ng"
         uses: actions/upload-artifact@v4
         with:
-          name: crosstool.${{ matrix.host }}
+          name: crosstool-${{ env.ctngCommit }}.${{ matrix.host }}
           path: ct-ng.tar
       - name: "upload config.log"
         uses: actions/upload-artifact@v4
         with:
-          name: config.log.${{ matrix.host }}
+          name: config.log.${{ env.ctngCommit }}.${{ matrix.host }}
           path: config.log
         if: ${{ always() }}
 
@@ -103,6 +118,15 @@ jobs:
         repos: ${{ fromJSON(inputs.repos) }}
         include:
           - { host: "windows-2022", sys: MSYS }
+    env:
+      ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
+
+      ctngRepoHost: ${{ matrix.repos.ctngSource.repo_host }}
+      ctngRepoUser: ${{ matrix.repos.ctngSource.repo_user }}
+      ctngRepoName: ${{ matrix.repos.ctngSource.repo_name }}
+      ctngName: ${{ matrix.repos.ctngSource.name }}
+      ctngBranch: ${{ matrix.repos.ctngSource.branch }}
+      ctngCommit: ${{ matrix.repos.ctngSource.commit }}
     steps:
       - name: "prereq MSYS2"
         if: ${{ runner.os == 'Windows' }}
@@ -124,7 +148,7 @@ jobs:
       - name: "download ct-ng"
         uses: actions/download-artifact@v4
         with:
-          name: crosstool.${{ matrix.host }}
+          name: crosstool-${{ env.ctngCommit }}.${{ matrix.host }}
       - name: "extract ct-ng"
         shell: msys2 {0}
         run: |
