@@ -31,6 +31,7 @@ jobs:
         host: ["windows-2022"]
         sys: ["MSYS"]
         sample: ${{ fromJSON(inputs.samples) }}
+        repos: ${{ fromJSON(inputs.repos) }}
         exclude:
           # Exclude both glibc & uClibc ARC Linux toolchains as
           # there's no known use of ARC Linux toolchains on Mac,
