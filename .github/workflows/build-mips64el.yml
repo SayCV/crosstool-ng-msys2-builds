@@ -2,7 +2,7 @@
 name: "Build mips64el"
 
 env:
-  sample: mips64-unknown-linux-gnu
+  sample: mips64el-unknown-linux-gnu
   CONFIGURATION: "repos.json"
   #OUT_DIR: "out"
 
@@ -57,7 +57,7 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: true
+      #dryrun: true
 
   Build-toolchain:
     needs: [Set-repos, Detect-versions, Install-crosstool]
@@ -68,7 +68,7 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: true
+      #dryrun: true
 
   Release:
     needs: [Set-repos, Detect-versions, ]

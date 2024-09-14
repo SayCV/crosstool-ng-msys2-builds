@@ -48,7 +48,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin meson ninja-build texinfo
-
+      - uses: actions/checkout@v4
       - name: "🌟 Parse ct-ng commit sha"
         if: ${{ env.ctngCommit == '' }}
         id: parse-ct-ng-commit-sha
@@ -96,6 +96,11 @@ jobs:
         if: ${{ steps.restore-crosstool-detect-versions-cache.outputs.cache-hit == 'true' }}
         run: |
           tar -xvf ct-ng.tar
+      - name: patch ct-ng
+        run: |
+          cp -vrf samples                    .local/share/crosstool-ng/samples
+          cp -vf packages/zstd               .local/share/crosstool-ng/packages/zstd/.
+          cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
       - name: "prereq PATH"
         run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: "😆 Parse gcc version"
