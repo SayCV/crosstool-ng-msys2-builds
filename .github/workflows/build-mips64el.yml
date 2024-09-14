@@ -94,6 +94,8 @@ jobs:
       mpcVer:  ${{ steps.parse-build-pkgs-versions.outputs.mpcVer }}
       mpfrVer: ${{ steps.parse-build-pkgs-versions.outputs.mpfrVer }}
       releaseTag: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
+    permissions:
+      contents: write
     steps:
       - name: "download build-pkgs-versions.txt"
         uses: actions/download-artifact@v4
