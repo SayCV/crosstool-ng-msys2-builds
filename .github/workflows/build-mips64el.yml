@@ -71,7 +71,7 @@ jobs:
       #dryrun: true
 
   Release:
-    needs: [Set-repos, Detect-versions, Build-toolchain]
+    needs: [Set-repos, Detect-versions, Install-crosstool, Build-toolchain]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 2
