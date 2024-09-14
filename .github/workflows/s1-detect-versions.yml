@@ -112,11 +112,25 @@ jobs:
           echo "::notice CT_GMP_VERSION=$CT_GMP_VERSION"
           echo "::notice CT_MPC_VERSION=$CT_MPC_VERSION"
           echo "::notice CT_MPFR_VERSION=$CT_MPFR_VERSION"
-          echo "ctVer=$CT_VERSION" >> $GITHUB_OUTPUT
-          echo "linuxVer=$CT_LINUX_VERSION" >> $GITHUB_OUTPUT
+          echo "ctVer=$CT_VERSION"                >> $GITHUB_OUTPUT
+          echo "linuxVer=$CT_LINUX_VERSION"       >> $GITHUB_OUTPUT
           echo "binutilsVer=$CT_BINUTILS_VERSION" >> $GITHUB_OUTPUT
-          echo "glibcVer=$CT_GLIBC_VERSION" >> $GITHUB_OUTPUT
-          echo "gccVer=$CT_GCC_VERSION" >> $GITHUB_OUTPUT
-          echo "gmpVer=$CT_GMP_VERSION" >> $GITHUB_OUTPUT
-          echo "mpcVer=$CT_MPC_VERSION" >> $GITHUB_OUTPUT
-          echo "mpfrVer=$CT_MPFR_VERSION" >> $GITHUB_OUTPUT
+          echo "glibcVer=$CT_GLIBC_VERSION"       >> $GITHUB_OUTPUT
+          echo "gccVer=$CT_GCC_VERSION"           >> $GITHUB_OUTPUT
+          echo "gmpVer=$CT_GMP_VERSION"           >> $GITHUB_OUTPUT
+          echo "mpcVer=$CT_MPC_VERSION"           >> $GITHUB_OUTPUT
+          echo "mpfrVer=$CT_MPFR_VERSION"         >> $GITHUB_OUTPUT
+          echo "ctVer=$CT_VERSION"                 > build-pkgs-versions.txt
+          echo "linuxVer=$CT_LINUX_VERSION"       >> build-pkgs-versions.txt
+          echo "binutilsVer=$CT_BINUTILS_VERSION" >> build-pkgs-versions.txt
+          echo "glibcVer=$CT_GLIBC_VERSION"       >> build-pkgs-versions.txt
+          echo "gccVer=$CT_GCC_VERSION"           >> build-pkgs-versions.txt
+          echo "gmpVer=$CT_GMP_VERSION"           >> build-pkgs-versions.txt
+          echo "mpcVer=$CT_MPC_VERSION"           >> build-pkgs-versions.txt
+          echo "mpfrVer=$CT_MPFR_VERSION"         >> build-pkgs-versions.txt
+      - name: "upload build-pkgs-versions.txt"
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-pkgs-versions-${{ env.ctngCommit }}.txt
+          path: ${{ github.workspace }}/build-pkgs-versions.txt
+        if: ${{ always() }}

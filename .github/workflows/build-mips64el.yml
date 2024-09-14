@@ -76,21 +76,48 @@ jobs:
     strategy:
       max-parallel: 2
       fail-fast: false
+      matrix:
+        repos: "${{ needs.Set-repos.outputs.repos }}"
+    env:
+      ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
+
+      ctngRepoHost: ${{ matrix.repos.ctngSource.repo_host }}
+      ctngRepoUser: ${{ matrix.repos.ctngSource.repo_user }}
+      ctngRepoName: ${{ matrix.repos.ctngSource.repo_name }}
+      ctngName: ${{ matrix.repos.ctngSource.name }}
+      ctngBranch: ${{ matrix.repos.ctngSource.branch }}
+      ctngCommit: ${{ matrix.repos.ctngSource.commit }}
+    outputs:
+      ctVer:   ${{ steps.parse-build-pkgs-versions.outputs.ctVer }}
+      gccVer:  ${{ steps.parse-build-pkgs-versions.outputs.gccVer }}
+      gmpVer:  ${{ steps.parse-build-pkgs-versions.outputs.gmpVer }}
+      mpcVer:  ${{ steps.parse-build-pkgs-versions.outputs.mpcVer }}
+      mpfrVer: ${{ steps.parse-build-pkgs-versions.outputs.mpfrVer }}
+      releaseTag: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
     steps:
-      - name: generate release info
-        env:
-          ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
-          gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
-          gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
-          mpcVer:  ${{ needs.Detect-versions.outputs.mpcVer }}
-          mpfrVer: ${{ needs.Detect-versions.outputs.mpfrVer }}
-        run:
-          echo "::notice needs.Detect-versions.outputs=${{ needs.Detect-versions.outputs }}"
+      - name: "download build-pkgs-versions.txt"
+        uses: actions/download-artifact@v4
+        with:
+          name: build-pkgs-versions-${{ env.ctngCommit }}.txt
+
+      - name: parse build-pkgs-versions
+        id: parse-build-pkgs-versions
+        run: |
+          source build-pkgs-versions.txt
           echo "::notice ctVer=$ctVer"
           echo "::notice gccVer=$gccVer"
           echo "::notice gmpVer=$gmpVer"
           echo "::notice mpcVer=$mpcVer"
           echo "::notice mpfrVer=$mpfrVer"
+          echo "ctVer=$CT_VERSION"                >> $GITHUB_OUTPUT
+          echo "linuxVer=$CT_LINUX_VERSION"       >> $GITHUB_OUTPUT
+          echo "binutilsVer=$CT_BINUTILS_VERSION" >> $GITHUB_OUTPUT
+          echo "glibcVer=$CT_GLIBC_VERSION"       >> $GITHUB_OUTPUT
+          echo "gccVer=$CT_GCC_VERSION"           >> $GITHUB_OUTPUT
+          echo "gmpVer=$CT_GMP_VERSION"           >> $GITHUB_OUTPUT
+          echo "mpcVer=$CT_MPC_VERSION"           >> $GITHUB_OUTPUT
+          echo "mpfrVer=$CT_MPFR_VERSION"         >> $GITHUB_OUTPUT
+          echo "releaseTag=v$gccVer-ctv$ctVer"    >> $GITHUB_OUTPUT
           echo "GCC $gccVer" > ${{ github.workspace }}-VERSIONS.txt
           echo "GMP $gmpVer" >> ${{ github.workspace }}-VERSIONS.txt
           echo "MPC $mpcVer" >> ${{ github.workspace }}-VERSIONS.txt
@@ -100,8 +127,9 @@ jobs:
         id: upload_to_release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
+          body_path: ${{ github.workspace }}-VERSIONS.txt
           files: |
             *-VERSIONS.txt
             *.bit
             *.log
-          body_path: ${{ github.workspace }}-VERSIONS.txt
