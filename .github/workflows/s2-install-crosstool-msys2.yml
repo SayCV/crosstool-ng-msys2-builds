@@ -105,7 +105,6 @@ jobs:
         with:
           name: config.log.${{ env.ctngCommit }}.${{ matrix.host }}
           path: config.log
-        if: ${{ always() }}
 
   tarballs:
     if: ${{ !inputs.dryrun }}
