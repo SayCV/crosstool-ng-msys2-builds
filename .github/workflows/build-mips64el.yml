@@ -97,10 +97,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: "download build-pkgs-versions.txt"
+      - name: "download artifacts"
         uses: actions/download-artifact@v4
         with:
-          name: build-pkgs-versions-${{ env.ctngCommit }}.txt
+          name: |
+            build-pkgs-versions-${{ env.ctngCommit }}.txt
+            ${{ env.sample }}.*.tar
+            ${{ env.sample }}.*.log
 
       - name: parse build-pkgs-versions
         id: parse-build-pkgs-versions
@@ -133,5 +136,5 @@ jobs:
           body_path: ${{ github.workspace }}-VERSIONS.txt
           files: |
             *-VERSIONS.txt
-            *.bit
+            *.tar
             *.log
