@@ -63,23 +63,17 @@ jobs:
 
   Build-toolchain:
     needs: [Set-repos, Detect-versions, Install-crosstool]
-    runs-on: ubuntu-latest
     strategy:
       max-parallel: 2
       fail-fast: false
-    steps:
-      - name: "😄 Checkout"
-        uses: actions/checkout@v4
-      - name: build toolchains in msys2
-        id: build-toolchains-msys2
-        uses: ./.github/workflows/s3-build-toolchains-msys2.yml
-        with:
-          samples: >-
-            [
-              "${{ needs.Set-repos.outputs.sample }}"
-            ]
-          repos: "${{ needs.Set-repos.outputs.repos }}"
-          dryrun: 'true'
+    uses: ./.github/workflows/s3-build-toolchains-msys2.yml
+    with:
+      samples: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
+      dryrun: true
 
   Release:
     needs: [Set-repos, Detect-versions, Build-toolchain]
