@@ -38,7 +38,8 @@ jobs:
     #   Did you forget to run actions/checkout before running your local action?
     #   even if add actions/checkout to here
     #   https://stackoverflow.com/questions/77373271/in-github-actions-how-can-you-pass-outputs-from-a-local-action
-    # so moved ./.github/workflows/s1-detect-versions.yml to ./.github/actions/s1-detect-versions/action.yml
+    # so consider moved ./.github/workflows/s1-detect-versions.yml to ./.github/actions/s1-detect-versions/action.yml
+    # but it's usage is different so revert to used old usage
     runs-on: ubuntu-latest
     outputs:
       ctVer:   ${{ steps.s1-detect-versions.outputs.ctVer }}
@@ -48,7 +49,7 @@ jobs:
       mpfrVer: ${{ steps.s1-detect-versions.outputs.mpfrVer }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/s1-detect-versions
+      - uses: ./.github/workflows/s1-detect-versions.yml
         id: s1-detect-versions
         with:
           sample: >-
@@ -62,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/s2-install-crosstool-msys2
+      - uses: ./.github/workflows/s2-install-crosstool-msys2.yml
         id: s2-install-crosstool-msys2
         with:
           sample: >-
@@ -77,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/s3-build-toolchains-msys2
+      - uses: ./.github/workflows/s3-build-toolchains-msys2.yml
         id: s3-build-toolchains-msys2
         with:
           sample: >-
