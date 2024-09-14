@@ -40,53 +40,35 @@ jobs:
     #   https://stackoverflow.com/questions/77373271/in-github-actions-how-can-you-pass-outputs-from-a-local-action
     # so consider moved ./.github/workflows/s1-detect-versions.yml to ./.github/actions/s1-detect-versions/action.yml
     # but it's usage is different so revert to used old usage
-    runs-on: ubuntu-latest
-    outputs:
-      ctVer:   ${{ steps.s1-detect-versions.outputs.ctVer }}
-      gccVer:  ${{ steps.s1-detect-versions.outputs.gccVer }}
-      gmpVer:  ${{ steps.s1-detect-versions.outputs.gmpVer }}
-      mpcVer:  ${{ steps.s1-detect-versions.outputs.mpcVer }}
-      mpfrVer: ${{ steps.s1-detect-versions.outputs.mpfrVer }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/s1-detect-versions.yml
-        id: s1-detect-versions
-        with:
-          sample: >-
-            [
-              "${{ needs.Set-repos.outputs.sample }}"
-            ]
-          repos: "${{ needs.Set-repos.outputs.repos }}"
+    uses: ./.github/workflows/s1-detect-versions.yml
+    with:
+      sample: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
 
   Install-crosstool:
     needs: [Set-repos, Detect-versions]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/s2-install-crosstool-msys2.yml
-        id: s2-install-crosstool-msys2
-        with:
-          sample: >-
-            [
-              "${{ needs.Set-repos.outputs.sample }}"
-            ]
-          repos: "${{ needs.Set-repos.outputs.repos }}"
-          dryrun: true
+    uses: ./.github/workflows/s2-install-crosstool-msys2.yml
+    with:
+      sample: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
+      dryrun: true
 
   Build-toolchain:
     needs: [Set-repos, Detect-versions, Install-crosstool]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/s3-build-toolchains-msys2.yml
-        id: s3-build-toolchains-msys2
-        with:
-          sample: >-
-            [
-              "${{ needs.Set-repos.outputs.sample }}"
-            ]
-          repos: "${{ needs.Set-repos.outputs.repos }}"
-          dryrun: true
+    uses: ./.github/workflows/s3-build-toolchains-msys2.yml
+    with:
+      samples: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
+      dryrun: true
 
   Release:
     needs: [Set-repos, Detect-versions, Build-toolchain]
@@ -97,6 +79,7 @@ jobs:
     steps:
       - name: generate release info
         env:
+          outputs: ${{ needs.Detect-versions.outputs}}
           ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
           gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
           gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
@@ -118,7 +101,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            *.jed
+            *-VERSIONS.txt
             *.bit
             *.log
           body_path: ${{ github.workspace }}-VERSIONS.txt
