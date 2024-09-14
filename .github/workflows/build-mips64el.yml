@@ -90,7 +90,7 @@ jobs:
           echo "::notice gccVer=$gccVer"
           echo "::notice gmpVer=$gmpVer"
           echo "::notice mpcVer=$mpcVer"
-          echo "::notice mpfrVer=$mpfrVer
+          echo "::notice mpfrVer=$mpfrVer"
           echo "GCC $gccVer" > ${{ github.workspace }}-VERSIONS.txt
           echo "GMP $gmpVer" >> ${{ github.workspace }}-VERSIONS.txt
           echo "MPC $mpcVer" >> ${{ github.workspace }}-VERSIONS.txt
