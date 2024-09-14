@@ -57,7 +57,7 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: true
+      #dryrun: true
 
   Build-toolchain:
     needs: [Set-repos, Detect-versions, Install-crosstool]
@@ -68,10 +68,10 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: true
+      #dryrun: true
 
   Release:
-    needs: [Set-repos, Detect-versions, ]
+    needs: [Set-repos, Detect-versions, Install-crosstool, Build-toolchain]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 2
