@@ -24,7 +24,7 @@ on:
 
 jobs:
   build:
-    if: ${{ inputs.dryrun == 'fasle' }}
+    if: ${{ inputs.dryrun == 'false' }}
     runs-on: ${{ matrix.host }}
     strategy:
       matrix:

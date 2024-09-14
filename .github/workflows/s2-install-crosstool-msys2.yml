@@ -19,7 +19,7 @@ on:
 
 jobs:
   crosstool:
-    if: ${{ inputs.dryrun == 'fasle' }}
+    if: ${{ inputs.dryrun == 'false' }}
     runs-on: ${{ matrix.host }}
     strategy:
       max-parallel: 2
