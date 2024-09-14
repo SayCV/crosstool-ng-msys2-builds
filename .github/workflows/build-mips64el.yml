@@ -77,7 +77,7 @@ jobs:
       max-parallel: 2
       fail-fast: false
       matrix:
-        repos: "${{ needs.Set-repos.outputs.repos }}"
+        repo: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
     env:
       ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
 
