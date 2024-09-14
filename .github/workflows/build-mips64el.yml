@@ -32,6 +32,13 @@ jobs:
 
   Detect-versions:
     needs: [Set-repos, ]
+    # Must remove runs-on labels since
+    # Can't find 'action.yml'
+    # Did you forget to run actions/checkout before running your local action?
+    # even if add actions/checkout to here
+    strategy:
+      max-parallel: 2
+      fail-fast: false
     uses: ./.github/workflows/s1-detect-versions.yml
     with:
       sample: >-
@@ -41,7 +48,6 @@ jobs:
       repos: "${{ needs.Set-repos.outputs.repos }}"
 
   Install-crosstool:
-    if: ${{ 'fasle' == 'true' }}
     needs: [Set-repos, Detect-versions]
     strategy:
       max-parallel: 2
@@ -53,9 +59,9 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
+      dryrun: 'true'
 
   Build-toolchain:
-    if: ${{ 'fasle' == 'true' }}
     needs: [Set-repos, Detect-versions, Install-crosstool]
     runs-on: ubuntu-latest
     strategy:
@@ -73,6 +79,7 @@ jobs:
               "${{ needs.Set-repos.outputs.sample }}"
             ]
           repos: "${{ needs.Set-repos.outputs.repos }}"
+          dryrun: 'true'
 
   Release:
     needs: [Set-repos, Detect-versions, Build-toolchain]

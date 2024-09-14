@@ -17,9 +17,14 @@ on:
         default: false
         required: false
         type: boolean
+      dryrun:
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   build:
+    if: ${{ inputs.dryrun == 'fasle' }}
     runs-on: ${{ matrix.host }}
     strategy:
       matrix:
