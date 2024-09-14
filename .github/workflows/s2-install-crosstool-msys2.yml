@@ -92,7 +92,7 @@ jobs:
         if: ${{ always() }}
 
   tarballs:
-    if: ${{ inputs.dryrun == 'fasle' }}
+    if: ${{ inputs.dryrun == 'false' }}
     needs: crosstool
     runs-on: ${{ matrix.host }}
     strategy:
