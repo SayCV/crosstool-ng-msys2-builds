@@ -155,7 +155,7 @@ jobs:
         run: |
           tar -xvf ct-ng.tar
       - name: cache tarballs
-        id: cache
+        id: restore-crosstool-src-tarballs-cache
         uses: actions/cache@v4
         with:
           path: src.tar
@@ -164,6 +164,7 @@ jobs:
             src.tar-${{ hashFiles('.local/share/crosstool-ng/packages') }}-
             src.tar-
       - name: extract tarballs
+        if: ${{ steps.restore-crosstool-src-tarballs-cache.outputs.cache-hit == 'true' }}
         shell: msys2 {0}
         run: |
           tar -xvf src.tar || true
@@ -178,6 +179,7 @@ jobs:
         shell: msys2 {0}
         run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
       - name: "ct-ng source"
+        if: ${{ steps.restore-crosstool-src-tarballs-cache.outputs.cache-hit != 'true' }}
         shell: msys2 {0}
         run: |
           which ct-ng || true
