@@ -163,7 +163,6 @@ jobs:
             src.tar-${{ hashFiles('.local/share/crosstool-ng/packages') }}-
             src.tar-
       - name: extract tarballs
-        if: ${{ steps.restore-crosstool-src-tarballs-cache.outputs.cache-hit == 'true' }}
         shell: msys2 {0}
         run: |
           tar -xvf src.tar || true
