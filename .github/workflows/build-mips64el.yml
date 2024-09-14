@@ -79,7 +79,7 @@ jobs:
     steps:
       - name: generate release info
         env:
-          outputs: ${{ needs.Detect-versions.outputs}}
+          locout:  ${{ needs.Detect-versions.outputs}}
           ctVer:   ${{ needs.Detect-versions.outputs.ctVer }}
           gccVer:  ${{ needs.Detect-versions.outputs.gccVer }}
           gmpVer:  ${{ needs.Detect-versions.outputs.gmpVer }}
