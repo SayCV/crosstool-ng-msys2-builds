@@ -100,9 +100,6 @@ jobs:
       - name: "download artifacts"
         uses: actions/download-artifact@v4
         with:
-          pattern: |
-            ${{ env.sample }}*
-            build-pkgs-versions-*.txt
           merge-multiple: true
 
       - name: parse build-pkgs-versions
