@@ -32,48 +32,60 @@ jobs:
 
   Detect-versions:
     needs: [Set-repos, ]
-    # Must remove runs-on labels since
-    # Can't find 'action.yml'
-    # Did you forget to run actions/checkout before running your local action?
-    # even if add actions/checkout to here
-    strategy:
-      max-parallel: 2
-      fail-fast: false
-    uses: ./.github/workflows/s1-detect-versions.yml
-    with:
-      sample: >-
-        [
-          "${{ needs.Set-repos.outputs.sample }}"
-        ]
-      repos: "${{ needs.Set-repos.outputs.repos }}"
+    # uses: ./.github/workflows/s1-detect-versions.yml
+    #   Must remove runs-on labels since
+    #   Can't find 'action.yml'
+    #   Did you forget to run actions/checkout before running your local action?
+    #   even if add actions/checkout to here
+    #   https://stackoverflow.com/questions/77373271/in-github-actions-how-can-you-pass-outputs-from-a-local-action
+    # so moved ./.github/workflows/s1-detect-versions.yml to ./.github/actions/s1-detect-versions/action.yml
+    runs-on: ubuntu-latest
+    outputs:
+      ctVer:   ${{ steps.s1-detect-versions.outputs.ctVer }}
+      gccVer:  ${{ steps.s1-detect-versions.outputs.gccVer }}
+      gmpVer:  ${{ steps.s1-detect-versions.outputs.gmpVer }}
+      mpcVer:  ${{ steps.s1-detect-versions.outputs.mpcVer }}
+      mpfrVer: ${{ steps.s1-detect-versions.outputs.mpfrVer }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/s1-detect-versions
+        id: s1-detect-versions
+        with:
+          sample: >-
+            [
+              "${{ needs.Set-repos.outputs.sample }}"
+            ]
+          repos: "${{ needs.Set-repos.outputs.repos }}"
 
   Install-crosstool:
     needs: [Set-repos, Detect-versions]
-    strategy:
-      max-parallel: 2
-      fail-fast: false
-    uses: ./.github/workflows/s2-install-crosstool-msys2.yml
-    with:
-      sample: >-
-        [
-          "${{ needs.Set-repos.outputs.sample }}"
-        ]
-      repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/s2-install-crosstool-msys2
+        id: s2-install-crosstool-msys2
+        with:
+          sample: >-
+            [
+              "${{ needs.Set-repos.outputs.sample }}"
+            ]
+          repos: "${{ needs.Set-repos.outputs.repos }}"
+          dryrun: true
 
   Build-toolchain:
     needs: [Set-repos, Detect-versions, Install-crosstool]
-    strategy:
-      max-parallel: 2
-      fail-fast: false
-    uses: ./.github/workflows/s3-build-toolchains-msys2.yml
-    with:
-      samples: >-
-        [
-          "${{ needs.Set-repos.outputs.sample }}"
-        ]
-      repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/s3-build-toolchains-msys2
+        id: s3-build-toolchains-msys2
+        with:
+          sample: >-
+            [
+              "${{ needs.Set-repos.outputs.sample }}"
+            ]
+          repos: "${{ needs.Set-repos.outputs.repos }}"
+          dryrun: true
 
   Release:
     needs: [Set-repos, Detect-versions, Build-toolchain]
