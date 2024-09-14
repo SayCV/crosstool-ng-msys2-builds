@@ -24,7 +24,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.inputs.dryrun == 'false' }}
+    if: ${{ !inputs.dryrun }}
     runs-on: ${{ matrix.host }}
     strategy:
       matrix:

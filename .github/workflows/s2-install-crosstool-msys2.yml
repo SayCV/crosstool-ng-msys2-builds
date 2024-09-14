@@ -19,7 +19,7 @@ on:
 
 jobs:
   crosstool:
-    if: ${{ github.event.inputs.dryrun == 'false' }}
+    if: ${{ !inputs.dryrun }}
     runs-on: ${{ matrix.host }}
     strategy:
       max-parallel: 2
@@ -92,7 +92,7 @@ jobs:
         if: ${{ always() }}
 
   tarballs:
-    if: ${{ github.event.inputs.dryrun == 'false' }}
+    if: ${{ !inputs.dryrun }}
     needs: crosstool
     runs-on: ${{ matrix.host }}
     strategy:
