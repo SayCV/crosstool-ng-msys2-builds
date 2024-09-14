@@ -101,7 +101,7 @@ jobs:
         shell: msys2 {0}
         run: |
           cp -vrf samples                    .local/share/crosstool-ng/samples
-          cp -vf packages/zstd/1.5.6/*.patch .local/share/crosstool-ng/packages/zstd/1.5.6/.
+          cp -vrf packages/zstd              .local/share/crosstool-ng/packages/zstd
           cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}

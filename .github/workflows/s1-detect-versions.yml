@@ -99,7 +99,7 @@ jobs:
       - name: patch ct-ng
         run: |
           cp -vrf samples                    .local/share/crosstool-ng/samples
-          cp -vf packages/zstd               .local/share/crosstool-ng/packages/zstd/.
+          cp -vrf packages/zstd              .local/share/crosstool-ng/packages/zstd
           cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
       - name: "prereq PATH"
         run: echo "$GITHUB_WORKSPACE/.local/bin" >> "$GITHUB_PATH"
