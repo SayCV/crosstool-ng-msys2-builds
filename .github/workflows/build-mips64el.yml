@@ -57,7 +57,7 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: false
+      #dryrun: true
 
   Build-toolchain:
     needs: [Set-repos, Detect-versions, Install-crosstool]
@@ -68,7 +68,7 @@ jobs:
           "${{ needs.Set-repos.outputs.sample }}"
         ]
       repos: "${{ needs.Set-repos.outputs.repos }}"
-      dryrun: false
+      #dryrun: true
 
   Release:
     needs: [Set-repos, Detect-versions, Build-toolchain]

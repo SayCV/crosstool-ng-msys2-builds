@@ -19,7 +19,6 @@ on:
 
 jobs:
   crosstool:
-    if: ${{ inputs.dryrun == 'false' }}
     runs-on: ${{ matrix.host }}
     strategy:
       max-parallel: 2
@@ -38,6 +37,7 @@ jobs:
       ctngName: ${{ matrix.repos.ctngSource.name }}
       ctngBranch: ${{ matrix.repos.ctngSource.branch }}
       ctngCommit: ${{ matrix.repos.ctngSource.commit }}
+    if: ${{ inputs.dryrun == 'false' }}
     steps:
       - name: "prereq MSYS2"
         if: ${{ runner.os == 'Windows' }}
@@ -92,7 +92,6 @@ jobs:
         if: ${{ always() }}
 
   tarballs:
-    if: ${{ inputs.dryrun == 'false' }}
     needs: crosstool
     runs-on: ${{ matrix.host }}
     strategy:
@@ -103,6 +102,7 @@ jobs:
         repos: ${{ fromJSON(inputs.repos) }}
         include:
           - { host: "windows-2022", sys: MSYS }
+    if: ${{ inputs.dryrun == 'false' }}
     steps:
       - name: "prereq MSYS2"
         if: ${{ runner.os == 'Windows' }}

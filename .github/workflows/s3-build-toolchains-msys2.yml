@@ -24,7 +24,6 @@ on:
 
 jobs:
   build:
-    if: ${{ inputs.dryrun == 'false' }}
     runs-on: ${{ matrix.host }}
     strategy:
       matrix:
@@ -48,6 +47,7 @@ jobs:
           # Exclude x86_64-w64-mingw32,x86_64-pc-linux-gnu because it crashes on m4 build with
           # a Segmentation fault
           - {host: "macos-12", sample: "x86_64-w64-mingw32,x86_64-pc-linux-gnu"}
+    if: ${{ inputs.dryrun == 'false' }}
     steps:
       - name: "prereq MSYS2"
         if: ${{ runner.os == 'Windows' }}
