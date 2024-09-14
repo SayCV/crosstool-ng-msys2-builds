@@ -30,7 +30,7 @@ inputs:
     required: false
     type: boolean
 
-jobs:
+runs:
   crosstool:
     if: ${{ inputs.dryrun == 'fasle' }}
     runs-on: ${{ matrix.host }}

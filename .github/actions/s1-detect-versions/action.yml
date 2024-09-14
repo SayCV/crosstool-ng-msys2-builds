@@ -25,7 +25,7 @@ inputs:
     required: true
     type: string
 
-jobs:
+runs:
   Get-ctng:
     name: "🐎 Get ctng"
     runs-on: ubuntu-latest

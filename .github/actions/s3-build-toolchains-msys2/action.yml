@@ -40,7 +40,7 @@ inputs:
     required: false
     type: boolean
 
-jobs:
+runs:
   build:
     if: ${{ inputs.dryrun == 'fasle' }}
     runs-on: ${{ matrix.host }}
