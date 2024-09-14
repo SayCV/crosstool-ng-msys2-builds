@@ -100,8 +100,8 @@ jobs:
       - name: patch ct-ng
         shell: msys2 {0}
         run: |
-          cp -vrf samples                    .local/share/crosstool-ng/samples
-          cp -vrf packages/zstd              .local/share/crosstool-ng/packages/zstd
+          cp -vrf samples                    .local/share/crosstool-ng/
+          cp -vrf packages/zstd              .local/share/crosstool-ng/packages/
           cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
