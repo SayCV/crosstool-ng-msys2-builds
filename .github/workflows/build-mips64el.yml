@@ -101,6 +101,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           merge-multiple: true
+      - name: "Display structure of downloaded files"
+        run: ls -R
 
       - name: parse build-pkgs-versions
         id: parse-build-pkgs-versions
