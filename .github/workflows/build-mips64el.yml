@@ -100,10 +100,8 @@ jobs:
       - name: "download artifacts"
         uses: actions/download-artifact@v4
         with:
-          name: |
-            build-pkgs-versions-${{ env.ctngCommit }}.txt
-            ${{ env.sample }}.*.tar
-            ${{ env.sample }}.*.log
+          pattern: ${{ env.sample }}*
+          merge-multiple: true
 
       - name: parse build-pkgs-versions
         id: parse-build-pkgs-versions
