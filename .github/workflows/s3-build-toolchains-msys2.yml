@@ -141,13 +141,17 @@ jobs:
         env:
           MSYS_NO_PATHCONV:
           MSYS: winsymlinks:native
-      - name: create ${{ matrix.sample }}.${{ matrix.host }} tarball
+      - name: create ${{ matrix.sample }}-msys2.${{ matrix.host }} tarball
         shell: msys2 {0}
         run: |
           cp -vrf /usr/bin/msys-2.0.dll ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }}/bin/. || true
           tar -C ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }} \
               -czf ${{ matrix.sample }}-msys2.${{ matrix.host }}.tar.gz . || true
+      - name: create ${{ matrix.sample }}-msys2-buildlog.${{ matrix.host }} tarball
+        shell: msys2 {0}
+        run: |
           tar -czf ${{ matrix.sample }}-msys2-buildlog.${{ matrix.host }}.tar.gz build.log .config || true
+        if: ${{ always() }}
       - name: upload ${{ matrix.sample }}-msys2.${{ matrix.host }} tarball
         uses: actions/upload-artifact@v4
         with:
