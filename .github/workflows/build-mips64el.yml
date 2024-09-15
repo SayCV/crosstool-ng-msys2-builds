@@ -134,4 +134,5 @@ jobs:
         with:
           tag_name: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
           body_path: ${{ github.workspace }}-VERSIONS.txt
-          files: *.tar.gz
+          files: |
+            *.tar.gz
