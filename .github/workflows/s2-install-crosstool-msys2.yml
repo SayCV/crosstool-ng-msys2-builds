@@ -195,11 +195,12 @@ jobs:
                 ct-ng olddefconfig; \
                 ct-ng source; \
           done
-          echo "## before:"
-          ls -R
-          find src -type f -not -newer stamp -delete -print
-          echo "## after:"
-          ls -R
+          # echo "## before:"
+          # ls -R
+          # following command run in windows is not good to work and will delete all download source files
+          # find src -type f -not -newer stamp -delete -print
+          # echo "## after:"
+          # ls -R
           tar -cvf src.tar src
 
 #  toolchains:
