@@ -195,8 +195,10 @@ jobs:
                 ct-ng olddefconfig; \
                 ct-ng source; \
           done
+          echo "## before:"
           ls -R
           find src -type f -not -newer stamp -delete -print
+          echo "## after:"
           ls -R
           tar -cvf src.tar src
 
