@@ -4,5 +4,4 @@
 ---
 
 - removed feature(not support)
-  - CT_EXPERIMENTAL
   - CT_DEBUG_GDB
