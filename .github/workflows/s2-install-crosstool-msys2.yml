@@ -103,7 +103,7 @@ jobs:
         if: ${{ steps.restore-crosstool-install-cache.outputs.cache-hit != 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: config.log.${{ env.ctngCommit }}.${{ matrix.host }}
+          name: crosstool-config-log.${{ env.ctngCommit }}.${{ matrix.host }}
           path: config.log
 
   tarballs:

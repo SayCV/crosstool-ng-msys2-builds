@@ -146,18 +146,18 @@ jobs:
         run: |
           cp -vrf /usr/bin/msys-2.0.dll ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }}/bin/.
           tar -C ${{ steps.strings.outputs.workspace }}/x-tools/${{ matrix.sample }} \
-              -cf ${{ matrix.sample }}.${{ matrix.host }}.tar .
-      - name: upload ${{ matrix.sample }}.${{ matrix.host }} tarball
+              -czf ${{ matrix.sample }}-msys2.${{ matrix.host }}.tar.gz .
+          tar -czf ${{ matrix.sample }}-msys2-buildlog.${{ matrix.host }}.tar.gz build.log .config || true
+      - name: upload ${{ matrix.sample }}-msys2.${{ matrix.host }} tarball
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.sample }}.${{ matrix.host }}.tar
+          name: ${{ matrix.sample }}-msys2.${{ matrix.host }}.tar.gz
           path: |
-            ${{ matrix.sample }}.${{ matrix.host }}.tar
+            ${{ matrix.sample }}-msys2.${{ matrix.host }}.tar.gz
       - name: upload log
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.sample }}.${{ matrix.host }}.log
+          name: ${{ matrix.sample }}-msys2-buildlog.${{ matrix.host }}.tar.gz
           path: |
-            build.log
-            .config
+            ${{ matrix.sample }}-msys2-buildlog.${{ matrix.host }}.tar.gz
         if: ${{ always() }}

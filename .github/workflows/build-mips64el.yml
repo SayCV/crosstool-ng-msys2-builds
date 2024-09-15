@@ -102,7 +102,8 @@ jobs:
         with:
           merge-multiple: true
       - name: "Display structure of downloaded files"
-        run: ls -R
+        run: |
+          ls -R
 
       - name: parse build-pkgs-versions
         id: parse-build-pkgs-versions
@@ -133,7 +134,4 @@ jobs:
         with:
           tag_name: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
           body_path: ${{ github.workspace }}-VERSIONS.txt
-          files: |
-            *-VERSIONS.txt
-            *.tar
-            *.log
+          files: *.tar.gz
