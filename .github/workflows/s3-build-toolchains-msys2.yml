@@ -131,13 +131,14 @@ jobs:
         run: |
           env
           mkdir -p src
-          ct-ng ${{ matrix.sample }}
+          ct-ng ${{ matrix.sample }} || true
           sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config
           sed -i -e '/CT_LOCAL_TARBALLS_DIR/s/HOME/CT_TOP_DIR/' .config
           sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config
           sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
           sed -i -e '/CT_INVALID_CONFIGURATION/s/y$/n/' .config
           test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
+          echo "## build"
           ct-ng build
         env:
           MSYS_NO_PATHCONV:
