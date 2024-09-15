@@ -195,7 +195,9 @@ jobs:
                 ct-ng olddefconfig; \
                 ct-ng source; \
           done
+          ls -R
           find src -type f -not -newer stamp -delete -print
+          ls -R
           tar -cvf src.tar src
 
 #  toolchains:
