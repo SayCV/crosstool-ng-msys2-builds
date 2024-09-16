@@ -1,5 +1,5 @@
 ---
-name: Generate sha256 hashes for release files
+name: Generate hashes for release files
 
 on:
   push:
@@ -13,40 +13,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: "download artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-      - name: "Display structure of downloaded files"
-        run: |
-          ls -R
-      - name: parse build-pkgs-versions
-        id: parse-build-pkgs-versions
-        run: |
-          source build-pkgs-versions.txt
-          echo "::notice ctVer=$ctVer"
-          echo "::notice gccVer=$gccVer"
-          echo "::notice gmpVer=$gmpVer"
-          echo "::notice mpcVer=$mpcVer"
-          echo "::notice mpfrVer=$mpfrVer"
-          echo "ctVer=$CT_VERSION"                >> $GITHUB_OUTPUT
-          echo "linuxVer=$CT_LINUX_VERSION"       >> $GITHUB_OUTPUT
-          echo "binutilsVer=$CT_BINUTILS_VERSION" >> $GITHUB_OUTPUT
-          echo "glibcVer=$CT_GLIBC_VERSION"       >> $GITHUB_OUTPUT
-          echo "gccVer=$CT_GCC_VERSION"           >> $GITHUB_OUTPUT
-          echo "gmpVer=$CT_GMP_VERSION"           >> $GITHUB_OUTPUT
-          echo "mpcVer=$CT_MPC_VERSION"           >> $GITHUB_OUTPUT
-          echo "mpfrVer=$CT_MPFR_VERSION"         >> $GITHUB_OUTPUT
-          echo "releaseTag=v$gccVer-ctv$ctVer"    >> $GITHUB_OUTPUT
-          echo "GCC $gccVer" > ${{ github.workspace }}-VERSIONS.txt
-          echo "GMP $gmpVer" >> ${{ github.workspace }}-VERSIONS.txt
-          echo "MPC $mpcVer" >> ${{ github.workspace }}-VERSIONS.txt
-          echo "MPFR $mpfrVer" >> ${{ github.workspace }}-VERSIONS.txt
-
+      - name: "😄 Checkout"
+        uses: actions/checkout@v4
       - name: fetch-gh-release-asset
         uses: dsaltares/fetch-gh-release-asset@master
         with:
-          version: 'tags/${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}'
+          #version: 'tags/v1.0'
           regex: true
           file: ".*-msys2\\.windows-2022\\.tar\\.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,7 +36,7 @@ jobs:
         id: upload_to_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
+          #tag_name: v1.0
           #body_path: ${{ github.workspace }}-VERSIONS.txt
           files: |
             *.hash
