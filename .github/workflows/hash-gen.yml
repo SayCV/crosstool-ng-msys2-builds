@@ -24,7 +24,7 @@ jobs:
           repo: ${{ github.repository }}
           version: 'tags/${{ steps.find-latest-tag.outputs.tag }}'
           regex: true
-          file: "*"
+          file: ".*"
           #token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Hashes
         run: |
