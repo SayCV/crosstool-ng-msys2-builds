@@ -15,15 +15,16 @@ jobs:
     steps:
       - uses: oprypin/find-latest-tag@v1
         with:
-          repository: SayCV/crosstool-ng-msys2-builds  # The repository to scan.
-          releases-only: true  # We know that all relevant tags have a GitHub release for them.
-        id: find-latest-tag  # The step ID to refer to later.
+          repository: ${{ github.repository }}
+          releases-only: true
+        id: find-latest-tag
       - name: fetch-gh-release-asset
         uses: dsaltares/fetch-gh-release-asset@master
         with:
+          repo: ${{ github.repository }}
           version: 'tags/${{ steps.find-latest-tag.outputs.tag }}'
           regex: true
-          file: ".*-msys2.windows-2022.tar.gz"
+          file: "*-msys2.windows-2022.tar.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Hashes
         run: |
