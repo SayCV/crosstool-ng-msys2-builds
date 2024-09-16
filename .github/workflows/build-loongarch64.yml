@@ -128,6 +128,15 @@ jobs:
           echo "MPC $mpcVer" >> ${{ github.workspace }}-VERSIONS.txt
           echo "MPFR $mpfrVer" >> ${{ github.workspace }}-VERSIONS.txt
 
+      - name: Generate Hashes
+        run: |
+          echo "md5sum	"`md5sum -t $hash_file`         > $hash_file.hash
+          echo "sha1sum	"`sha1sum -t $hash_file`       >> $hash_file.hash
+          echo "sha256sum	"`sha256sum -t $hash_file`   >> $hash_file.hash
+          echo "sha512sum 	"`sha512sum -t $hash_file` >> $hash_file.hash
+        env:
+          hash_file: ${{ env.sample }}-msys2.windows-2022.tar.gz
+
       - name: "💛 Upload to Release"
         id: upload_to_release
         uses: softprops/action-gh-release@v2
@@ -136,3 +145,4 @@ jobs:
           body_path: ${{ github.workspace }}-VERSIONS.txt
           files: |
             *.tar.gz
+            *.hash

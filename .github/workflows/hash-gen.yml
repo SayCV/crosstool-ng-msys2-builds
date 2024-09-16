@@ -11,9 +11,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Release
+      - name: fetch-gh-release-asset
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          regex: true
+          file: ".*-msys2\\.windows-2022\\.tar\\.gz"
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Hashes
+        run: |
+          for hash_file in `find *.tar.gz -type f -print`; do \
+                echo "md5sum	"`md5sum -t $hash_file`         > $hash_file.hash; \
+                echo "sha1sum	"`sha1sum -t $hash_file`       >> $hash_file.hash; \
+                echo "sha256sum	"`sha256sum -t $hash_file`   >> $hash_file.hash; \
+                echo "sha512sum 	"`sha512sum -t $hash_file` >> $hash_file.hash; \
+          done
+
+      - name: "💛 Upload hashes to Release"
+        id: upload_to_release
         uses: softprops/action-gh-release@v2
-      - name: Checksums
-        uses: wangzuo/action-release-checksums@v1
+        with:
+          #tag_name: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
+          #body_path: ${{ github.workspace }}-VERSIONS.txt
+          files: |
+            *.hash
