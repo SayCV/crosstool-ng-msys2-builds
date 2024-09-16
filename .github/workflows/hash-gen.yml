@@ -24,7 +24,7 @@ jobs:
           repo: ${{ github.repository }}
           version: 'tags/${{ steps.find-latest-tag.outputs.tag }}'
           regex: true
-          file: "*-msys2.windows-2022.tar.gz"
+          file: ".*-msys2\\..*\\.tar\\.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Hashes
         run: |
