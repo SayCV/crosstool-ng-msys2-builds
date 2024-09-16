@@ -131,7 +131,7 @@ jobs:
         run: |
           env
           mkdir -p src
-          ct-ng ${{ matrix.sample }} || true
+          ct-ng ${{ matrix.sample }}
           sed -i -e '/CT_LOG_PROGRESS_BAR/s/y$/n/' .config
           sed -i -e '/CT_LOCAL_TARBALLS_DIR/s/HOME/CT_TOP_DIR/' .config
           sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config
