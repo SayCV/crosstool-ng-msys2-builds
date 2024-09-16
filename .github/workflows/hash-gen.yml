@@ -24,7 +24,7 @@ jobs:
           latest: true
           # tag: ''
           fileName: '*-msys2.windows-2022.tar.gz'
-          tarBall: true
+          tarBall: false
           zipBall: false
           #token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Hashes
