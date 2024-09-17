@@ -137,16 +137,17 @@ jobs:
           sed -i -e '/CT_PREFIX_DIR/s/HOME/CT_TOP_DIR/' .config
           sed -i -e '/CT_GLIBC_ENABLE_DEBUG/s/y$/n/' .config
           sed -i -e '/CT_INVALID_CONFIGURATION/d' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e 's/^.*CT_BINUTILS_LINKER_LD_GOLD.*$/CT_BINUTILS_LINKER_LD=y/' .config; \
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_GOLD_INSTALLED/s/y$/n/' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_GOLD_THREADS/s/y$/n/' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_LD_WRAPPER/s/y$/n/' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_PLUGINS/s/y$/n/' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_DEBUG_GDB/s/y$/n/' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e 's/^.*CT_BINUTILS_LINKERS_LIST.*$/CT_BINUTILS_LINKERS_LIST="ld"/' .config; \
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_CC_GCC_ENABLE_PLUGINS/s/y$/n/' .config
-          test ${{ runner.os }} = "Windows" && sed -i -e '/CT_CC_GCC_GOLD/s/y$/n/' .config
-          test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e 's/^.*CT_BINUTILS_LINKER_LD_GOLD.*$/CT_BINUTILS_LINKER_LD=y/' .config; \
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_GOLD_INSTALLED/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_GOLD_THREADS/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_LINKER_BOTH/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_LD_WRAPPER/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_BINUTILS_PLUGINS/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_DEBUG_GDB/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e 's/^.*CT_BINUTILS_LINKERS_LIST.*$/CT_BINUTILS_LINKERS_LIST="ld"/' .config; \
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_CC_GCC_ENABLE_PLUGINS/s/y$/n/' .config
+          ## test ${{ runner.os }} = "Windows" && sed -i -e '/CT_CC_GCC_GOLD/s/y$/n/' .config
+          ## test ${{ matrix.host }} = "macos-12" && sed -i -e '/CT_GDB_CROSS_PYTHON/s/y$/n/' .config
           echo "## build"
           ct-ng build
         env:
