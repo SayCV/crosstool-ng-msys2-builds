@@ -1,0 +1,148 @@
+---
+name: "Build loongarch64 musl"
+
+env:
+  sample: loongarch64-unknown-linux-gnu-musl
+  CONFIGURATION: "repos.json"
+  #OUT_DIR: "out"
+
+on:
+  push:
+    tags:
+      - "v*-rev*"
+  workflow_dispatch:
+
+jobs:
+  Set-repos:
+    name: "🐂 Parse-config"
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.generate-matrix.outputs.repos }}
+      sample: ${{ env.sample }}
+    steps:
+      - name: "😄 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "😆 Generate Matrix"
+        id: generate-matrix
+        run: |
+          echo "repos<<EOF" >> $GITHUB_OUTPUT
+          cat  ${{ env.CONFIGURATION }} >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  Detect-versions:
+    needs: [Set-repos, ]
+    # uses: ./.github/workflows/s1-detect-versions.yml
+    #   Must remove runs-on labels since
+    #   Can't find 'action.yml'
+    #   Did you forget to run actions/checkout before running your local action?
+    #   even if add actions/checkout to here
+    #   https://stackoverflow.com/questions/77373271/in-github-actions-how-can-you-pass-outputs-from-a-local-action
+    # so consider moved ./.github/workflows/s1-detect-versions.yml to ./.github/actions/s1-detect-versions/action.yml
+    # but it's usage is different so revert to used old usage
+    uses: ./.github/workflows/s1-detect-versions.yml
+    with:
+      sample: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
+
+  Install-crosstool:
+    needs: [Set-repos, Detect-versions]
+    uses: ./.github/workflows/s2-install-crosstool-msys2.yml
+    with:
+      sample: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
+      #dryrun: true
+
+  Build-toolchain:
+    needs: [Set-repos, Detect-versions, Install-crosstool]
+    uses: ./.github/workflows/s3-build-toolchains-msys2.yml
+    with:
+      samples: >-
+        [
+          "${{ needs.Set-repos.outputs.sample }}"
+        ]
+      repos: "${{ needs.Set-repos.outputs.repos }}"
+      #dryrun: true
+
+  Release:
+    needs: [Set-repos, Detect-versions, Install-crosstool, Build-toolchain]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        repos: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
+    env:
+      ctngDir: ${{ matrix.repos.ctngSource.name }}_${{ matrix.repos.ctngSource.commit }}
+
+      ctngRepoHost: ${{ matrix.repos.ctngSource.repo_host }}
+      ctngRepoUser: ${{ matrix.repos.ctngSource.repo_user }}
+      ctngRepoName: ${{ matrix.repos.ctngSource.repo_name }}
+      ctngName: ${{ matrix.repos.ctngSource.name }}
+      ctngBranch: ${{ matrix.repos.ctngSource.branch }}
+      ctngCommit: ${{ matrix.repos.ctngSource.commit }}
+    outputs:
+      ctVer:   ${{ steps.parse-build-pkgs-versions.outputs.ctVer }}
+      gccVer:  ${{ steps.parse-build-pkgs-versions.outputs.gccVer }}
+      gmpVer:  ${{ steps.parse-build-pkgs-versions.outputs.gmpVer }}
+      mpcVer:  ${{ steps.parse-build-pkgs-versions.outputs.mpcVer }}
+      mpfrVer: ${{ steps.parse-build-pkgs-versions.outputs.mpfrVer }}
+      releaseTag: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
+    permissions:
+      contents: write
+    steps:
+      - name: "download artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: "Display structure of downloaded files"
+        run: |
+          ls -R
+
+      - name: parse build-pkgs-versions
+        id: parse-build-pkgs-versions
+        run: |
+          source build-pkgs-versions.txt
+          echo "::notice ctVer=$ctVer"
+          echo "::notice gccVer=$gccVer"
+          echo "::notice gmpVer=$gmpVer"
+          echo "::notice mpcVer=$mpcVer"
+          echo "::notice mpfrVer=$mpfrVer"
+          echo "ctVer=$CT_VERSION"                >> $GITHUB_OUTPUT
+          echo "linuxVer=$CT_LINUX_VERSION"       >> $GITHUB_OUTPUT
+          echo "binutilsVer=$CT_BINUTILS_VERSION" >> $GITHUB_OUTPUT
+          echo "glibcVer=$CT_GLIBC_VERSION"       >> $GITHUB_OUTPUT
+          echo "gccVer=$CT_GCC_VERSION"           >> $GITHUB_OUTPUT
+          echo "gmpVer=$CT_GMP_VERSION"           >> $GITHUB_OUTPUT
+          echo "mpcVer=$CT_MPC_VERSION"           >> $GITHUB_OUTPUT
+          echo "mpfrVer=$CT_MPFR_VERSION"         >> $GITHUB_OUTPUT
+          echo "releaseTag=v$gccVer-ctv$ctVer"    >> $GITHUB_OUTPUT
+          echo "GCC $gccVer" > ${{ github.workspace }}-VERSIONS.txt
+          echo "GMP $gmpVer" >> ${{ github.workspace }}-VERSIONS.txt
+          echo "MPC $mpcVer" >> ${{ github.workspace }}-VERSIONS.txt
+          echo "MPFR $mpfrVer" >> ${{ github.workspace }}-VERSIONS.txt
+
+      - name: Generate Hashes
+        run: |
+          echo "md5sum	"`md5sum -t $hash_file`         > $hash_file.hash
+          echo "sha1sum	"`sha1sum -t $hash_file`       >> $hash_file.hash
+          echo "sha256sum	"`sha256sum -t $hash_file`   >> $hash_file.hash
+          echo "sha512sum 	"`sha512sum -t $hash_file` >> $hash_file.hash
+        env:
+          hash_file: ${{ env.sample }}-msys2.windows-2022.tar.gz
+
+      - name: "💛 Upload to Release"
+        id: upload_to_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.parse-build-pkgs-versions.outputs.releaseTag }}
+          body_path: ${{ github.workspace }}-VERSIONS.txt
+          files: |
+            *.tar.gz
+            *.hash
