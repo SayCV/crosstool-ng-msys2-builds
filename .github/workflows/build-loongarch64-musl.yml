@@ -2,7 +2,7 @@
 name: "Build loongarch64 musl"
 
 env:
-  sample: loongarch64-unknown-linux-gnu-musl
+  sample: loongarch64-unknown-linux-musl
   CONFIGURATION: "repos.json"
   #OUT_DIR: "out"
 
