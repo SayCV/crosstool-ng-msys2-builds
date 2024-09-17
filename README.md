@@ -3,7 +3,7 @@
 
 ---
 
-- removed feature(not support)
+- removed features(not support)
   - CT_BINUTILS_LINKER_LD_GOLD
   - CT_BINUTILS_GOLD_THREADS
   - CT_BINUTILS_LD_WRAPPER
