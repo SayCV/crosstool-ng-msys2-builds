@@ -110,7 +110,7 @@ jobs:
       - name: patch ct-ng
         shell: msys2 {0}
         run: |
-          config=./local/share/crosstool-ng/samples/${{ matrix.sample }}/crosstool.config
+          config=.local/share/crosstool-ng/samples/${{ matrix.sample }}/crosstool.config
           sed -i -e '/CT_BINUTILS_LINKER_LD_GOLD/s/y$/n/' $config
           sed -i -e '/CT_BINUTILS_GOLD_THREADS/s/y$/n/' $config
           sed -i -e '/CT_BINUTILS_LD_WRAPPER/s/y$/n/' $config
