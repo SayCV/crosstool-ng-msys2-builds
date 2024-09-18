@@ -110,6 +110,10 @@ jobs:
       - name: patch ct-ng
         shell: msys2 {0}
         run: |
+          cp -vrf samples                    .local/share/crosstool-ng/
+          cp -vrf packages/zstd              .local/share/crosstool-ng/packages/
+          cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
+          echo "## patching crosstool.config"
           config=.local/share/crosstool-ng/samples/${{ matrix.sample }}/crosstool.config
           sed -i -e '/CT_BINUTILS_LINKER_LD_GOLD/s/y$/n/' $config
           sed -i -e '/CT_BINUTILS_GOLD_THREADS/s/y$/n/' $config
@@ -121,9 +125,6 @@ jobs:
           sed -i -e '/CT_GDB_NATIVE/s/y$/n/' $config
           sed -i -e '/CT_DEBUG_STRACE/s/y$/n/' $config
           sed -i -e '/CT_DEBUG_STRACE/s/y$/n/' $config
-          cp -vrf samples                    .local/share/crosstool-ng/
-          cp -vrf packages/zstd              .local/share/crosstool-ng/packages/
-          cp -vf packages/gmp/*.sh           .local/share/crosstool-ng/scripts/build/companion_libs/.
       - name: download x86_64-w64-mingw32.${{ matrix.host }} tarball
         if: ${{ inputs.canadian-cross }}
         uses: actions/download-artifact@v4
