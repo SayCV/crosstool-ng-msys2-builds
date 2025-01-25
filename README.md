@@ -13,3 +13,4 @@
   - CT_GDB_NATIVE
   - CT_DEBUG_LTRACE
   - CT_DEBUG_STRACE
+  - CT_MULTILIB(over the github-actions-job-timeout)
